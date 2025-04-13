@@ -5,6 +5,5 @@
 class Cube
 {
 public:
-	static void generatePT(std::vector<float>& vertices);
-	static void generatePNT(std::vector<float>& vertices);
+	static void generatePN(std::vector<float>& vertices);
 };

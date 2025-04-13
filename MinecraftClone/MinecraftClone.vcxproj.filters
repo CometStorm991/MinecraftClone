@@ -21,6 +21,12 @@
     <None Include="Shaders\LightingVS.glsl" />
     <None Include="Shaders\MultipleLightingFS.glsl" />
     <None Include="Shaders\SimpleLightingFS.glsl" />
+    <None Include="Shaders\VertexShader.glsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="Shaders\FragmentShader.glsl">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\ArchLinux.jpeg">
@@ -33,6 +39,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Resources\TutorialSpecularMap.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\GrassBlock.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
