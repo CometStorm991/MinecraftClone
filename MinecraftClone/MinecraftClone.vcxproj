@@ -152,6 +152,7 @@
     <ClCompile Include="Source\AttributeLayout.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\PerformanceTimer.cpp" />
     <ClCompile Include="Source\Program.cpp" />
     <ClCompile Include="Source\Renderer.cpp" />
     <ClCompile Include="Source\Shader.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="Source\Application.hpp" />
     <ClInclude Include="Source\AttributeLayout.hpp" />
     <ClInclude Include="Source\Cube.hpp" />
+    <ClInclude Include="Source\PerformanceTimer.hpp" />
     <ClInclude Include="Source\Program.hpp" />
     <ClInclude Include="Source\Renderer.hpp" />
     <ClInclude Include="Source\Shader.hpp" />

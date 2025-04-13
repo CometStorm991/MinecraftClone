@@ -13,6 +13,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "AttributeLayout.hpp"
+#include "PerformanceTimer.hpp"
 #include "Program.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"

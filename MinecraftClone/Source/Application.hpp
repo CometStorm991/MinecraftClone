@@ -10,6 +10,7 @@
 
 #include "AttributeLayout.hpp"
 #include "Cube.hpp"
+#include "PerformanceTimer.hpp"
 #include "Program.hpp"
 #include "Shader.hpp"
 #include "Renderer.hpp"
@@ -23,7 +24,7 @@ private:
 	uint32_t vaoId;
 	std::vector<uint32_t> textureIds;
 
-	uint32_t chunkLength = 8;
+	uint32_t chunkLength = 16;
 	std::vector<float> chunk;
 
 	void generateChunk();

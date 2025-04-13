@@ -64,6 +64,10 @@ void Application::run()
 {
     //runMultipleLighting();
 
+    std::cout << "----------------------------------------------" << std::endl;
+
+    PerformanceTimer runTimer = PerformanceTimer("Run");
+
     renderer.prepareForRender();
     renderer.calculateCameraTransform();
 
@@ -71,6 +75,7 @@ void Application::run()
 
     renderer.prepareForDraw(programId, textureIds, vaoId);
 
+    PerformanceTimer renderLoopTimer = PerformanceTimer("Render Loop");
     for (unsigned int i = 0; i < std::pow(chunkLength, 3); i++)
     {
         int x = chunk.at(i * 3);
@@ -85,11 +90,11 @@ void Application::run()
         renderer.setUniform3f(programId, "viewPos", renderer.getCameraPos());
         renderer.draw(36);
     }
-    
+    renderLoopTimer.stop();
 
     renderer.unprepareForDraw(programId, textureIds);
 
-    renderer.calculateFps();
+    // renderer.calculateFps();
     renderer.updateGLFW();
 }
 

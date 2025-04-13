@@ -176,6 +176,7 @@ void Renderer::setCameraPos(const glm::vec3& cameraPos)
 
 void Renderer::calculateCameraTransform()
 {
+    PerformanceTimer timer = PerformanceTimer("Calculate Camera Transform");
     calculateCameraOrientation();
     calculateCameraPosition();
 }
@@ -223,13 +224,16 @@ void Renderer::calculateCameraPosition()
 
 void Renderer::prepareForRender()
 {
+    PerformanceTimer timer = PerformanceTimer("Prepare for Render");
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     previousMillis = milliseconds;
     milliseconds = getMillisecondsSinceRunPreparation();
 }
 
 void Renderer::prepareForDraw(uint32_t programId, const std::vector<uint32_t>& textureIds, uint32_t vaoId)
 {
+    PerformanceTimer timer = PerformanceTimer("Prepare for Draw");
     programMap.at(programId).use();
     for (unsigned int i = 0; i < textureIds.size(); i++)
     {
@@ -260,6 +264,7 @@ void Renderer::draw(unsigned int triangleCount)
 
 void Renderer::unprepareForDraw(uint32_t programId, const std::vector<uint32_t>& textureIds)
 {
+    PerformanceTimer timer = PerformanceTimer("Unprepare for Draw");
     programMap.at(programId).unuse();
     for (unsigned int i = 0; i < textureIds.size(); i++)
     {
