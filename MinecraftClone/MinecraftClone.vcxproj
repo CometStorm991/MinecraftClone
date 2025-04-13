@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{0c7c0f42-37b8-4a21-b28a-22e266084059}</ProjectGuid>
-    <RootNamespace>OpenGLTutorial</RootNamespace>
+    <ProjectGuid>{1b96afaa-dd6c-4fdc-baee-1349afab3148}</ProjectGuid>
+    <RootNamespace>MinecraftClone</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -104,14 +104,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Dev\OpenGLTutorial\Dependencies\GLM\include\;$(SolutionDir)Dependencies\GLFW\include\;$(SolutionDir)Dependencies\GLEW\include\;$(SolutionDir)Dependencies\STB\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\GLM\include;$(SolutionDir)Dependencies\STB\include;C:\Dev\MinecraftClone\Dependencies\GLEW\include;$(SolutionDir)Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib-vc2022;$(SolutionDir)Dependencies\GLEW\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;glew32s.lib;User32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLEW\lib\Release\x64;$(SolutionDir)Dependencies\GLFW\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -120,58 +120,49 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GLEW_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\GLFW\include\;$(SolutionDir)Dependencies\GLEW\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib-vc2022;C:\Dev\OpenGLTutorial\Dependencies\GLEW\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;glew32s.lib;User32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="Shaders\SimpleLightingFS.glsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="Shaders\LightingVS.glsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="Shaders\LightingLightFS.glsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="Shaders\MultipleLightingFS.glsl" />
-    <ClCompile Include="Source\Application.cpp" />
-    <ClCompile Include="Source\Cube.cpp" />
-    <ClCompile Include="Source\Renderer.cpp" />
-    <ClCompile Include="Source\AttributeLayout.cpp" />
-    <ClCompile Include="Source\Main.cpp" />
-    <ClCompile Include="Source\Program.cpp" />
-    <ClCompile Include="Source\Shader.cpp" />
-    <ClCompile Include="Source\Texture.cpp" />
-    <ClCompile Include="Vendors\stb_image.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Shaders\GettingStartedFS.glsl" />
     <None Include="Shaders\GettingStartedVS.glsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Source\Application.hpp" />
-    <ClInclude Include="Source\Cube.hpp" />
-    <ClInclude Include="Source\Renderer.hpp" />
-    <ClInclude Include="Source\AttributeLayout.hpp" />
-    <ClInclude Include="Source\Program.hpp" />
-    <ClInclude Include="Source\Shader.hpp" />
-    <ClInclude Include="Source\Texture.hpp" />
+    <None Include="Shaders\LightingLightFS.glsl" />
+    <None Include="Shaders\LightingVS.glsl" />
+    <None Include="Shaders\MultipleLightingFS.glsl" />
+    <None Include="Shaders\SimpleLightingFS.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\ArchLinux.jpeg" />
     <Image Include="Resources\NeutronStar.jpg" />
     <Image Include="Resources\TutorialDiffuseMap.png" />
     <Image Include="Resources\TutorialSpecularMap.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\AttributeLayout.cpp" />
+    <ClCompile Include="Source\Cube.cpp" />
+    <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\Program.cpp" />
+    <ClCompile Include="Source\Renderer.cpp" />
+    <ClCompile Include="Source\Shader.cpp" />
+    <ClCompile Include="Source\Texture.cpp" />
+    <ClCompile Include="Vendors\stb_image.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Application.hpp" />
+    <ClInclude Include="Source\AttributeLayout.hpp" />
+    <ClInclude Include="Source\Cube.hpp" />
+    <ClInclude Include="Source\Program.hpp" />
+    <ClInclude Include="Source\Renderer.hpp" />
+    <ClInclude Include="Source\Shader.hpp" />
+    <ClInclude Include="Source\Texture.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
