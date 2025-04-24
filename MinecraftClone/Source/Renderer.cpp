@@ -49,6 +49,9 @@ GLFWwindow* Renderer::initWindow()
 
     glfwSetWindowUserPointer(window, this);
 
+    // Disable VSync for high FPS testing
+    //glfwSwapInterval(0);
+
     return window;
 }
 
@@ -227,6 +230,8 @@ void Renderer::prepareForRender()
     //PerformanceTimer timer = PerformanceTimer("Prepare for Render");
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     previousMillis = milliseconds;
     milliseconds = getMillisecondsSinceRunPreparation();
 }
