@@ -150,6 +150,7 @@
     <None Include="Shaders\FragmentShader.glsl" />
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\AttributeLayout.cpp" />
+    <ClCompile Include="Source\Chunk.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\PerformanceTimer.cpp" />
@@ -162,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Application.hpp" />
     <ClInclude Include="Source\AttributeLayout.hpp" />
+    <ClInclude Include="Source\Chunk.hpp" />
     <ClInclude Include="Source\Cube.hpp" />
     <ClInclude Include="Source\PerformanceTimer.hpp" />
     <ClInclude Include="Source\Program.hpp" />

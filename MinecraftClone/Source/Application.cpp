@@ -8,26 +8,21 @@ void Application::init()
 
 void Application::generateChunk()
 {
-    for (unsigned int i = 0; i < chunkLength; i++)
+    for (unsigned int i = 0; i < std::powf(chunkLength, 3.0f); i++)
     {
-        for (unsigned int j = 0; j < chunkLength; j++)
-        {
-            for (unsigned int k = 0; k < chunkLength; k++)
-            {
-                chunk.push_back(i);
-                chunk.push_back(j);
-                chunk.push_back(k);
-            }
-        }
+        chunkData.push_back(true);
     }
 }
 
 void Application::prepare()
 {
-    std::vector<float> grassVertices;
-    Cube::generatePN(grassVertices);
-
     generateChunk();
+    chunk = Chunk(chunkData, chunkLength);
+
+    std::vector<float> grassVertices;
+    chunk.generateMesh(grassVertices);
+    vertexCount = grassVertices.size() / 6;
+    std::cout << vertexCount << std::endl;
 
     uint32_t vertexBuffer;
     renderer.generateVertexBuffer(vertexBuffer, grassVertices);
@@ -64,37 +59,35 @@ void Application::run()
 {
     //runMultipleLighting();
 
-    std::cout << "----------------------------------------------" << std::endl;
+    //std::cout << "----------------------------------------------" << std::endl;
 
-    PerformanceTimer runTimer = PerformanceTimer("Run");
+    // PerformanceTimer runTimer = PerformanceTimer("Run");
 
     renderer.prepareForRender();
     renderer.calculateCameraTransform();
 
-    glm::mat4 model;
+    glm::mat4 model = glm::mat4(1.0f);
 
     renderer.prepareForDraw(programId, textureIds, vaoId);
 
-    PerformanceTimer renderLoopTimer = PerformanceTimer("Render Loop");
-    for (unsigned int i = 0; i < std::pow(chunkLength, 3); i++)
-    {
-        int x = chunk.at(i * 3);
-        int y = chunk.at(i * 3 + 1);
-        int z = chunk.at(i * 3 + 2);
+    // PerformanceTimer renderLoopTimer = PerformanceTimer("Render Loop");
+    /*int x = chunkData.at(i * 3);
+        int y = chunkData.at(i * 3 + 1);
+        int z = chunkData.at(i * 3 + 2);
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(x, y, z));
-        renderer.updateModelMatrix(model);
-        renderer.setUniformMatrix4fv(programId, "normalMatrix", glm::transpose(glm::inverse(model)));
-        renderer.applyMvp(programId, "model", "view", "projection");
-        renderer.setUniform3f(programId, "viewPos", renderer.getCameraPos());
-        renderer.draw(36);
-    }
-    renderLoopTimer.stop();
+        renderer.updateModelMatrix(model);*/
+    renderer.setUniformMatrix4fv(programId, "normalMatrix", glm::transpose(glm::inverse(model)));
+    renderer.applyMvp(programId, "model", "view", "projection");
+    renderer.setUniform3f(programId, "viewPos", renderer.getCameraPos());
+    renderer.draw(vertexCount);
+
+    // renderLoopTimer.stop();
 
     renderer.unprepareForDraw(programId, textureIds);
 
-    // renderer.calculateFps();
+    renderer.calculateFps();
     renderer.updateGLFW();
 }
 

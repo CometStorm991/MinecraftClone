@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "AttributeLayout.hpp"
+#include "Chunk.hpp"
 #include "Cube.hpp"
 #include "PerformanceTimer.hpp"
 #include "Program.hpp"
@@ -19,13 +20,16 @@ class Application
 {
 private:
 	Renderer renderer;
+	
 
 	uint32_t programId;
 	uint32_t vaoId;
 	std::vector<uint32_t> textureIds;
 
+	Chunk chunk;
 	uint32_t chunkLength = 16;
-	std::vector<float> chunk;
+	std::vector<bool> chunkData;
+	uint32_t vertexCount;
 
 	void generateChunk();
 	

@@ -1,6 +1,7 @@
 #version 330 core
 
 in vec3 modelPos;
+in vec3 modelNorm;
 in vec3 norm;
 in vec3 fragPos;
 
@@ -36,8 +37,10 @@ vec3 calculateDirectionalLight(vec3 normalizedNorm, vec3 normalizedViewDir)
 	vec3 diffuseColor = vec3(0.0f);
 	vec3 specularColor = vec3(0.0f);
 	float shininess = 0.0f;
+
+	vec3 blockPos = mod(modelPos + 0.5f - modelNorm * 0.001f, 1.0f) + modelNorm * 0.001f;
 	
-	if (modelPos.y > 0.3f)
+	if (blockPos.y > 0.8f)
 	{
 		diffuseColor = grassBlockMaterial.grassDiffuse;
 		specularColor = vec3(grassBlockMaterial.grassSpecular);
