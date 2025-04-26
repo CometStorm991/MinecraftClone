@@ -104,9 +104,9 @@ void Renderer::generateIndexBuffer(uint32_t& indexBuffer, const std::vector<floa
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Renderer::generateTexture(uint32_t& textureId, const std::string& imagePath, GLenum textureUnit)
+void Renderer::generateTexture(uint32_t& textureId, const std::string& imagePath, GLenum pixelFormat)
 {
-     Texture texture = Texture(imagePath, textureUnit);
+     Texture texture = Texture(imagePath, pixelFormat);
     texture.load();
     
     textureId = texture.getId();

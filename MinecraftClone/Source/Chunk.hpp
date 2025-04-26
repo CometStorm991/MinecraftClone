@@ -10,7 +10,8 @@ class Chunk
 {
 private:
 	std::vector<bool> data;
-	unsigned int chunkSize;
+	unsigned int chunkLength;
+	unsigned int vertexFloatCount;
 
 	void getFreeVertices(std::vector<float>& meshPart, unsigned int index);
 
@@ -24,7 +25,7 @@ private:
 	int intPow(int base, int exp);
 public:
 	Chunk();
-	Chunk(const std::vector<bool>& data, unsigned int chunkSize);
+	Chunk(const std::vector<bool>& data, unsigned int chunkLength, unsigned int vertexFloatCount);
 
 	void generateMesh(std::vector<float>& mesh);
 };

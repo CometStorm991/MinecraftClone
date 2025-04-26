@@ -87,7 +87,7 @@ public:
 	void generateProgram(uint32_t& programId, const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 	void generateVertexBuffer(uint32_t& vertexBuffer, const std::vector<float>& cubeVertices);
 	void generateIndexBuffer(uint32_t& indexBuffer, const std::vector<float>& indices);
-	void generateTexture(uint32_t& textureId, const std::string& imagePath, GLenum textureUnit);
+	void generateTexture(uint32_t& textureId, const std::string& imagePath, GLenum pixelFormat);
 	void generateVertexArray(uint32_t& vao, uint32_t vertexBuffer, std::vector<AttributeLayout>& attribs);
 
 	void prepareForRun();

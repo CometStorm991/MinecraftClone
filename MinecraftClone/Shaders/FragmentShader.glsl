@@ -1,9 +1,10 @@
 #version 330 core
 
 in vec3 modelPos;
-in vec3 modelNorm;
 in vec3 norm;
 in vec3 fragPos;
+in vec2 texCoords;
+in float type;
 
 out vec4 fragColor;
 
@@ -11,14 +12,10 @@ uniform vec3 viewPos;
 
 struct GrassBlockMaterial
 {
-	vec3 grassDiffuse;
-	vec3 dirtDiffuse;
-	
-	float grassSpecular;
-	float dirtSpecular;
+	sampler2D diffuse;
+	sampler2D specular;
 
-	float grassShininess;
-	float dirtShininess;
+	float shininess;
 };
 uniform GrassBlockMaterial grassBlockMaterial;
 
@@ -32,26 +29,21 @@ struct DirectionalLight
 };
 uniform DirectionalLight directionalLight;
 
+vec3 getDiffuseColor(float type)
+{
+	sampler2D diffuseSampler;
+	if (type == 1.0f)
+	{
+		diffuseSampler = grassBlockMaterial.diffuse;
+	}
+	vec3(texture(grassBlockMaterial, texCoords));
+}
+
 vec3 calculateDirectionalLight(vec3 normalizedNorm, vec3 normalizedViewDir)
 {
-	vec3 diffuseColor = vec3(0.0f);
+	vec3 diffuseColor = texture();
 	vec3 specularColor = vec3(0.0f);
 	float shininess = 0.0f;
-
-	vec3 blockPos = mod(modelPos + 0.5f - modelNorm * 0.001f, 1.0f) + modelNorm * 0.001f;
-	
-	if (blockPos.y > 0.8f)
-	{
-		diffuseColor = grassBlockMaterial.grassDiffuse;
-		specularColor = vec3(grassBlockMaterial.grassSpecular);
-		shininess = grassBlockMaterial.grassShininess;
-	}
-	else
-	{
-		diffuseColor = grassBlockMaterial.dirtDiffuse;
-		specularColor = vec3(grassBlockMaterial.dirtSpecular);
-		shininess = grassBlockMaterial.dirtShininess;
-	}
 
 	vec3 normalizedLightDir = normalize(-directionalLight.direction);
 
