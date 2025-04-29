@@ -4,6 +4,8 @@
 
 class Cube
 {
+private:
+	static float third;
 public:
 	static void generatePN(std::vector<float>& vertices);
 	static void generatePNLeft(std::vector<float>& vertices);
@@ -14,6 +16,8 @@ public:
 	static void generatePNFront(std::vector<float>& vertices);
 
 	static void generatePNT(std::vector<float>& vertices);
+
+	static void generatePNTTy(std::vector<float>& vertices);
 	static void generatePNTTyLeft(std::vector<float>& vertices);
 	static void generatePNTTyRight(std::vector<float>& vertices);
 	static void generatePNTTyBottom(std::vector<float>& vertices);

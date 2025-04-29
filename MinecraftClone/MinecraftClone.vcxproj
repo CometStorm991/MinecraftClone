@@ -140,7 +140,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\ArchLinux.jpeg" />
-    <Image Include="Resources\GrassBlock.png" />
+    <Image Include="Resources\GrassBlockDiffuse.png" />
+    <Image Include="Resources\GrassBlockSpecular.png" />
     <Image Include="Resources\NeutronStar.jpg" />
     <Image Include="Resources\TutorialDiffuseMap.png" />
     <Image Include="Resources\TutorialSpecularMap.png" />

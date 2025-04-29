@@ -42,8 +42,10 @@ void Application::prepare()
 
     renderer.generateVertexArray(vaoId, vertexBuffer, attribs);
 
-    uint32_t grassBlockId;
-    renderer.generateTexture(grassBlockId, "Resources/GrassBlock.png", GL_RGBA);
+    uint32_t grassBlockDiffuseId;
+    renderer.generateTexture(grassBlockDiffuseId, "Resources/GrassBlockDiffuse.png", GL_RGBA);
+    uint32_t grassBlockSpecularId;
+    renderer.generateTexture(grassBlockSpecularId, "Resources/GrassBlockSpecular.png", GL_RGBA);
 
     renderer.generateProgram(programId, "Shaders/VertexShader.glsl", "Shaders/FragmentShader.glsl");
 
@@ -54,6 +56,7 @@ void Application::prepare()
     renderer.setUniform1f(programId, "grassBlockMaterial.grassSpecular", 0.5f);
     renderer.setUniform1f(programId, "grassBlockMaterial.dirtSpecular", 0.0f);*/
     renderer.setUniform1i(programId, "grassBlockMaterial.diffuse", 0);
+    renderer.setUniform1i(programId, "grassBlockMaterial.specular", 1);
     renderer.setUniform1f(programId, "grassBlockMaterial.grassShininess", 32.0f);
     renderer.setUniform1f(programId, "grassBlockMaterial.dirtShininess", 1.0f);
 
