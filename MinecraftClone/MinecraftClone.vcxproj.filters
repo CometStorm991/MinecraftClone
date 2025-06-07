@@ -124,7 +124,7 @@
     <ClInclude Include="Source\CubeFace.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TexturerBlockType.hpp">
+    <ClInclude Include="Source\BlockType.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\BlockTextureCoords.hpp">

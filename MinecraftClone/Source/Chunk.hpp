@@ -4,15 +4,15 @@
 #include <iostream>
 #include <vector>
 
+#include "BlockType.hpp"
 #include "Cube.hpp"
 #include "CubeFace.hpp"
 #include "Texturer.hpp"
-#include "TexturerBlockType.hpp"
 
 class Chunk
 {
 private:
-	std::vector<TexturerBlockType> data;
+	std::vector<BlockType> data;
 	unsigned int chunkLength;
 	unsigned int vertexFloatCount;
 
@@ -21,7 +21,7 @@ private:
 	uint32_t imageWidth;
 	uint32_t imageHeight;
 
-	void getFreeVertices(std::vector<float>& meshPart, unsigned int index, TexturerBlockType blockType);
+	void getFreeVertices(std::vector<float>& meshPart, unsigned int index, BlockType blockType);
 
 	bool getFreeLeft(unsigned int index);
 	bool getFreeRight(unsigned int index);
@@ -32,7 +32,7 @@ private:
 
 	int intPow(int base, int exp);
 public:
-	Chunk(const std::vector<TexturerBlockType>& data, unsigned int chunkLength, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
+	Chunk(const std::vector<BlockType>& data, unsigned int chunkLength, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
 
 	void generateMesh(std::vector<float>& mesh);
 };

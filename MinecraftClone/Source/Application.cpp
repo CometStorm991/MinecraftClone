@@ -1,7 +1,7 @@
 #include "Application.hpp"
 
 Application::Application()
-    : chunk(Chunk(std::vector<TexturerBlockType>(), 0, 0, 0, 0))
+    : chunk(Chunk(std::vector<BlockType>(), 0, 0, 0, 0))
 {
 }
 
@@ -14,11 +14,11 @@ void Application::init()
 void Application::generateChunkData()
 {
     std::mt19937 gen(1);
-    std::uniform_int_distribution<int> dist(0, 4);
+    std::uniform_int_distribution<int> dist(1, 4);
 
     for (unsigned int i = 0; i < std::powf(chunkLength, 3.0f); i++)
     {
-        chunkData.push_back(static_cast<TexturerBlockType>(dist(gen)));
+        chunkData.push_back(static_cast<BlockType>(dist(gen)));
     }
 }
 
@@ -69,7 +69,7 @@ void Application::prepare()
     renderer.setUniform1i(programId, "materialAtlas.specular", 1);
     renderer.setUniform1f(programId, "materialAtlas.shininess", 32.0f);
 
-    renderer.setUniform3f(programId, "directionalLight.direction", glm::vec3(-0.2f, -0.5f, -1.0f));
+    renderer.setUniform3f(programId, "directionalLight.direction", glm::vec3(-0.2f, 0.5f, 1.0f));
     renderer.setUniform3f(programId, "directionalLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
     renderer.setUniform3f(programId, "directionalLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
     renderer.setUniform3f(programId, "directionalLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));

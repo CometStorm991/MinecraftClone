@@ -1,51 +1,51 @@
 #include "BlockTextureCoords.hpp"
 
-void BlockTextureCoords::get(TexturerBlockType type, CubeFace face, uint32_t& startX, uint32_t& startY, uint32_t& endX, uint32_t& endY)
+void BlockTextureCoords::get(BlockType type, CubeFace face, uint32_t& startX, uint32_t& startY, uint32_t& endX, uint32_t& endY)
 {
 	switch (type)
 	{
-	case TexturerBlockType::Air:
+	case BlockType::Air:
 		return;
-	case TexturerBlockType::Stone:
+	case BlockType::Stone:
 		startX = 0;
 		startY = 0;
-		endX = 15;
-		endY = 15;
+		endX = 16;
+		endY = 16;
 		return;
-	case TexturerBlockType::Dirt:
+	case BlockType::Dirt:
 		startX = 16;
 		startY = 0;
-		endX = 31;
-		endY = 15;
+		endX = 32;
+		endY = 16;
 		return;
-	case TexturerBlockType::Grass:
+	case BlockType::Grass:
 		switch (face)
 		{
 		case CubeFace::Top:
 			startX = 48;
 			startY = 0;
-			endX = 63;
-			endY = 15;
+			endX = 64;
+			endY = 16;
 			return;
 		case CubeFace::Bottom:
 			startX = 16;
 			startY = 0;
-			endX = 31;
-			endY = 15;
+			endX = 32;
+			endY = 16;
 			return;
 		default:
 			startX = 32;
 			startY = 0;
-			endX = 47;
-			endY = 15;
+			endX = 48;
+			endY = 16;
 			return;
 		}
 		return;
-	case TexturerBlockType::Sand:
+	case BlockType::Sand:
 		startX = 64;
 		startY = 0;
-		endX = 79;
-		endY = 15;
+		endX = 80;
+		endY = 16;
 		return;
 	}
 }

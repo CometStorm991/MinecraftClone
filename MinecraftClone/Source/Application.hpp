@@ -9,12 +9,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "AttributeLayout.hpp"
+#include "BlockType.hpp"
 #include "Chunk.hpp"
 #include "Cube.hpp"
 #include "PerformanceTimer.hpp"
 #include "Program.hpp"
 #include "Shader.hpp"
-#include "TexturerBlockType.hpp"
 #include "Renderer.hpp"
 
 class Application
@@ -29,7 +29,7 @@ private:
 
 	Chunk chunk;
 	uint32_t chunkLength = 16;
-	std::vector<TexturerBlockType> chunkData;
+	std::vector<BlockType> chunkData;
 	uint32_t vertexCount;
 
 	void generateChunkData();

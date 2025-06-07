@@ -1,6 +1,6 @@
 #pragma once
 
-enum class TexturerBlockType
+enum class BlockType
 {
 	Air, Stone, Dirt, Grass, Sand
 };

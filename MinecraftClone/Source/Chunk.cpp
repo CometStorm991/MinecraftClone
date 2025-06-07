@@ -1,13 +1,13 @@
 #include "Chunk.hpp"
 
-Chunk::Chunk(const std::vector<TexturerBlockType>& data, unsigned int chunkLength, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight)
+Chunk::Chunk(const std::vector<BlockType>& data, unsigned int chunkLength, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight)
 	: data(data), chunkLength(chunkLength), vertexFloatCount(vertexFloatCount), imageWidth(imageWidth), imageHeight(imageHeight),
 	texturer(Texturer(imageWidth, imageHeight))
 {
 	
 }
 
-void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, TexturerBlockType blockType)
+void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, BlockType blockType)
 {
 	meshPart.clear();
 
@@ -143,9 +143,9 @@ void Chunk::generateMesh(std::vector<float>& mesh)
 	mesh.clear();
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
-		TexturerBlockType blockType = data.at(i);
+		BlockType blockType = data.at(i);
 
-		if (blockType == TexturerBlockType::Air)
+		if (blockType == BlockType::Air)
 		{
 			continue;
 		}

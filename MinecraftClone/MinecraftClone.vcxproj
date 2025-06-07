@@ -176,7 +176,7 @@
     <ClInclude Include="Source\Shader.hpp" />
     <ClInclude Include="Source\Texture.hpp" />
     <ClInclude Include="Source\Texturer.hpp" />
-    <ClInclude Include="Source\TexturerBlockType.hpp" />
+    <ClInclude Include="Source\BlockType.hpp" />
     <ClInclude Include="Source\CubeFace.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

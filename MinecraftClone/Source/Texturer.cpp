@@ -6,7 +6,7 @@ Texturer::Texturer(uint32_t imageWidth, uint32_t imageHeight)
 
 }
 
-void Texturer::changeFace(std::vector<float>& faceMesh, uint32_t pixX, uint32_t pixY, TexturerBlockType blockType)
+void Texturer::changeFace(std::vector<float>& faceMesh, uint32_t pixX, uint32_t pixY, BlockType blockType)
 {
 	
 
@@ -15,14 +15,8 @@ void Texturer::changeFace(std::vector<float>& faceMesh, uint32_t pixX, uint32_t 
 
 void Texturer::pixelToTextureCoords(uint32_t pixX, uint32_t pixY, float& texX, float& texY)
 {
-	float minTexX = 1 / static_cast<float>(2 * imageWidth);
-	float maxTexX = (2 * (imageWidth - 1) + 1) / static_cast<float>(2 * imageWidth);
-
-	float minTexY = (2 * (imageHeight - 1) + 1) / static_cast<float>(2 * imageHeight);
-	float maxTexY = 1 / static_cast<float>(2 * imageHeight);
-
-	texX = mapRange(0, imageWidth - 1, minTexX, maxTexX, pixX);
-	texY = mapRange(0, imageHeight - 1, minTexY, maxTexY, pixY);
+	texX = mapRange(0.0f, imageWidth, 0.0f, 1.0f, pixX);
+	texY = mapRange(0.0f, imageHeight, 1.0f, 0.0f, pixY);
 }
 
 float Texturer::mapRange(float inputStart, float inputEnd, float outputStart, float outputEnd, float input)
@@ -30,11 +24,11 @@ float Texturer::mapRange(float inputStart, float inputEnd, float outputStart, fl
 	return outputStart + ((outputEnd - outputStart) / (inputEnd - inputStart)) * (input - inputStart);
 }
 
-void Texturer::generateFace(std::vector<float>& faceMesh, CubeFace face, TexturerBlockType blockType)
+void Texturer::generateFace(std::vector<float>& faceMesh, CubeFace face, BlockType blockType)
 {
 	Cube::generatePNTTyFace(faceMesh, face);
 
-	if (blockType == TexturerBlockType::Air)
+	if (blockType == BlockType::Air)
 	{
 		return;
 	}
