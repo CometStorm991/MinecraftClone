@@ -1,17 +1,13 @@
 #include "Chunk.hpp"
 
-Chunk::Chunk()
-{
-
-}
-
-Chunk::Chunk(const std::vector<bool>& data, unsigned int chunkLength, unsigned int vertexFloatCount)
-	: data(data), chunkLength(chunkLength), vertexFloatCount(vertexFloatCount)
+Chunk::Chunk(const std::vector<TexturerBlockType>& data, unsigned int chunkLength, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight)
+	: data(data), chunkLength(chunkLength), vertexFloatCount(vertexFloatCount), imageWidth(imageWidth), imageHeight(imageHeight),
+	texturer(Texturer(imageWidth, imageHeight))
 {
 	
 }
 
-void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index)
+void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, TexturerBlockType blockType)
 {
 	meshPart.clear();
 
@@ -19,7 +15,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index)
 	if (getFreeLeft(index))
 	{
 		std::vector<float> left;
-		Cube::generatePNTTyLeft(left);
+		texturer.generateFace(left, CubeFace::Left, blockType);
 		meshPart.insert(meshPart.end(), left.begin(), left.end());
 	}
 
@@ -27,7 +23,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index)
 	if (getFreeRight(index))
 	{
 		std::vector<float> right;
-		Cube::generatePNTTyRight(right);
+		texturer.generateFace(right, CubeFace::Right, blockType);
 		meshPart.insert(meshPart.end(), right.begin(), right.end());
 	}
 
@@ -35,7 +31,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index)
 	if (getFreeBottom(index))
 	{
 		std::vector<float> bottom;
-		Cube::generatePNTTyBottom(bottom);
+		texturer.generateFace(bottom, CubeFace::Bottom, blockType);
 		meshPart.insert(meshPart.end(), bottom.begin(), bottom.end());
 	}
 
@@ -43,7 +39,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index)
 	if (getFreeTop(index))
 	{
 		std::vector<float> top;
-		Cube::generatePNTTyTop(top);
+		texturer.generateFace(top, CubeFace::Top, blockType);
 		meshPart.insert(meshPart.end(), top.begin(), top.end());
 	}
 
@@ -51,7 +47,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index)
 	if (getFreeBack(index))
 	{
 		std::vector<float> back;
-		Cube::generatePNTTyBack(back);
+		texturer.generateFace(back, CubeFace::Back, blockType);
 		meshPart.insert(meshPart.end(), back.begin(), back.end());
 	}
 
@@ -59,7 +55,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index)
 	if (getFreeFront(index))
 	{
 		std::vector<float> front;
-		Cube::generatePNTTyFront(front);
+		texturer.generateFace(front, CubeFace::Front, blockType);
 		meshPart.insert(meshPart.end(), front.begin(), front.end());
 	}
 
@@ -73,7 +69,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index)
 		meshPart[i * vertexFloatCount + 1] += y;
 		meshPart[i * vertexFloatCount + 2] += z;
 
-		meshPart[i * vertexFloatCount + 8] = data.at(index);
+		meshPart[i * vertexFloatCount + 8] = static_cast<int>(blockType);
 	}
 }
 
@@ -84,7 +80,7 @@ bool Chunk::getFreeLeft(unsigned int index)
 		return true;
 	}
 	
-	return !data.at(index - intPow(chunkLength, 0));
+	return !static_cast<int>(data.at(index - intPow(chunkLength, 0)));
 }
 
 bool Chunk::getFreeRight(unsigned int index)
@@ -94,7 +90,7 @@ bool Chunk::getFreeRight(unsigned int index)
 		return true;
 	}
 
-	return !data.at(index + intPow(chunkLength, 0));
+	return !static_cast<int>(data.at(index + intPow(chunkLength, 0)));
 }
 
 bool Chunk::getFreeBottom(unsigned int index)
@@ -104,7 +100,7 @@ bool Chunk::getFreeBottom(unsigned int index)
 		return true;
 	}
 
-	return !data.at(index - intPow(chunkLength, 1));
+	return !static_cast<int>(data.at(index - intPow(chunkLength, 1)));
 }
 
 bool Chunk::getFreeTop(unsigned int index)
@@ -114,7 +110,7 @@ bool Chunk::getFreeTop(unsigned int index)
 		return true;
 	}
 
-	return !data.at(index + intPow(chunkLength, 1));
+	return !static_cast<int>(data.at(index + intPow(chunkLength, 1)));
 }
 
 bool Chunk::getFreeBack(unsigned int index)
@@ -124,7 +120,7 @@ bool Chunk::getFreeBack(unsigned int index)
 		return true;
 	}
 	
-	return !data.at(index - intPow(chunkLength, 2));
+	return !static_cast<int>(data.at(index - intPow(chunkLength, 2)));
 }
 
 bool Chunk::getFreeFront(unsigned int index)
@@ -134,7 +130,7 @@ bool Chunk::getFreeFront(unsigned int index)
 		return true;
 	}
 
-	return !data.at(index + intPow(chunkLength, 2));
+	return !static_cast<int>(data.at(index + intPow(chunkLength, 2)));
 }
 
 int Chunk::intPow(int base, int exp)
@@ -147,13 +143,15 @@ void Chunk::generateMesh(std::vector<float>& mesh)
 	mesh.clear();
 	for (unsigned int i = 0; i < data.size(); i++)
 	{
-		if (!data.at(i))
+		TexturerBlockType blockType = data.at(i);
+
+		if (blockType == TexturerBlockType::Air)
 		{
 			continue;
 		}
 
 		std::vector<float> meshPart;
-		getFreeVertices(meshPart, i);
+		getFreeVertices(meshPart, i, blockType);
 		
 		mesh.insert(mesh.end(), meshPart.begin(), meshPart.end());
 	}

@@ -27,6 +27,7 @@
     <None Include="Shaders\FragmentShader.glsl">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="Resources\TextureAtlas.kra" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\ArchLinux.jpeg">
@@ -41,7 +42,10 @@
     <Image Include="Resources\TutorialSpecularMap.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\GrassBlock.png">
+    <Image Include="Resources\DiffuseAtlas.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\SpecularAtlas.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
@@ -73,6 +77,18 @@
     <ClCompile Include="Vendors\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Chunk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PerformanceTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Texturer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\BlockTextureCoords.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.hpp">
@@ -94,6 +110,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Texture.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Chunk.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PerformanceTimer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Texturer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CubeFace.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TexturerBlockType.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\BlockTextureCoords.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

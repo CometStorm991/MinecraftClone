@@ -8,14 +8,23 @@ Texture::Texture(const std::string& imagePath, GLenum pixelFormat)
 
 void Texture::load()
 {
-    int width, height, channelCount;
+    int imageWidth, imageHeight, channelCount;
     stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(imagePath.c_str(), &width, &height, &channelCount, 0);
+    unsigned char* data = stbi_load(imagePath.c_str(), &imageWidth, &imageHeight, &channelCount, 0);
     if (!data)
     {
         std::cout << "[Error] Failed to load texture" << std::endl;
         std::cout << stbi_failure_reason() << std::endl;
     }
+
+    /*std::cout << imagePath << ":" << std::endl;
+    for (int i = 0; i < 4; i++)
+    {
+        std::cout << static_cast<int>(data[(255 * 256) * 4 + i]) << std::endl;
+    }*/
+
+    width = imageWidth;
+    height = imageHeight;
 
     glGenTextures(1, &id);
     glActiveTexture(GL_TEXTURE0);
@@ -23,8 +32,8 @@ void Texture::load()
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, pixelFormat, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -55,4 +64,19 @@ void Texture::unuse(GLenum textureUnit)
 uint32_t Texture::getId()
 {
     return id;
+}
+
+bool Texture::getLoaded()
+{
+    return loaded;
+}
+
+uint32_t Texture::getWidth()
+{
+    return width;
+}
+
+uint32_t Texture::getHeight()
+{
+    return height;
 }

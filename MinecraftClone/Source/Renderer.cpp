@@ -106,7 +106,7 @@ void Renderer::generateIndexBuffer(uint32_t& indexBuffer, const std::vector<floa
 
 void Renderer::generateTexture(uint32_t& textureId, const std::string& imagePath, GLenum pixelFormat)
 {
-     Texture texture = Texture(imagePath, pixelFormat);
+    Texture texture = Texture(imagePath, pixelFormat);
     texture.load();
     
     textureId = texture.getId();
@@ -392,6 +392,11 @@ float Renderer::getYaw()
 float Renderer::getPitch()
 {
     return pitch;
+}
+
+void Renderer::getTexture(uint32_t textureId, Texture& texture)
+{
+    texture = textureMap.at(textureId);
 }
 
 void Renderer::mouseCallbackGLFW(GLFWwindow* window, double xPos, double yPos)

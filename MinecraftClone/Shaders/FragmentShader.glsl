@@ -10,14 +10,14 @@ out vec4 fragColor;
 
 uniform vec3 viewPos;
 
-struct GrassBlockMaterial
+struct MaterialAtlas
 {
 	sampler2D diffuse;
 	sampler2D specular;
 
 	float shininess;
 };
-uniform GrassBlockMaterial grassBlockMaterial;
+uniform MaterialAtlas materialAtlas;
 
 struct DirectionalLight
 {
@@ -29,21 +29,11 @@ struct DirectionalLight
 };
 uniform DirectionalLight directionalLight;
 
-vec3 getDiffuseColor(float type)
-{
-	sampler2D diffuseSampler;
-	if (type == 1.0f)
-	{
-		diffuseSampler = grassBlockMaterial.diffuse;
-	}
-	vec3(texture(grassBlockMaterial, texCoords));
-}
-
 vec3 calculateDirectionalLight(vec3 normalizedNorm, vec3 normalizedViewDir)
 {
-	vec3 diffuseColor = texture();
-	vec3 specularColor = vec3(0.0f);
-	float shininess = 0.0f;
+	vec3 diffuseColor = vec3(texture(materialAtlas.diffuse, texCoords));
+	vec3 specularColor = vec3(texture(materialAtlas.specular, texCoords));
+	float shininess = materialAtlas.shininess;
 
 	vec3 normalizedLightDir = normalize(-directionalLight.direction);
 

@@ -14,6 +14,7 @@
 #include "PerformanceTimer.hpp"
 #include "Program.hpp"
 #include "Shader.hpp"
+#include "TexturerBlockType.hpp"
 #include "Renderer.hpp"
 
 class Application
@@ -28,13 +29,15 @@ private:
 
 	Chunk chunk;
 	uint32_t chunkLength = 16;
-	std::vector<bool> chunkData;
+	std::vector<TexturerBlockType> chunkData;
 	uint32_t vertexCount;
 
-	void generateChunk();
+	void generateChunkData();
 	
 	void prepareForRun();
 public:
+	Application();
+
 	void init();
 	void prepare();
 	void run();

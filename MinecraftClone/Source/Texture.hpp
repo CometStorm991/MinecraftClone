@@ -14,6 +14,9 @@ private:
 
 	uint32_t id;
 
+	uint32_t width;
+	uint32_t height;
+
 	bool loaded = false;
 public:
 	Texture(const std::string& imagePath, GLenum pixelFormat);
@@ -25,4 +28,6 @@ public:
 
 	uint32_t getId();
 	bool getLoaded();
+	uint32_t getWidth();
+	uint32_t getHeight();
 };

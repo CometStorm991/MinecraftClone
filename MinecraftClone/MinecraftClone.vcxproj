@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="Resources\TextureAtlas.kra" />
     <None Include="Shaders\GettingStartedFS.glsl" />
     <None Include="Shaders\GettingStartedVS.glsl" />
     <None Include="Shaders\LightingLightFS.glsl" />
@@ -140,9 +141,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\ArchLinux.jpeg" />
-    <Image Include="Resources\GrassBlockDiffuse.png" />
-    <Image Include="Resources\GrassBlockSpecular.png" />
+    <Image Include="Resources\DiffuseAtlas.png" />
     <Image Include="Resources\NeutronStar.jpg" />
+    <Image Include="Resources\SpecularAtlas.png" />
     <Image Include="Resources\TutorialDiffuseMap.png" />
     <Image Include="Resources\TutorialSpecularMap.png" />
   </ItemGroup>
@@ -151,6 +152,7 @@
     <None Include="Shaders\FragmentShader.glsl" />
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\AttributeLayout.cpp" />
+    <ClCompile Include="Source\BlockTextureCoords.cpp" />
     <ClCompile Include="Source\Chunk.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -159,11 +161,13 @@
     <ClCompile Include="Source\Renderer.cpp" />
     <ClCompile Include="Source\Shader.cpp" />
     <ClCompile Include="Source\Texture.cpp" />
+    <ClCompile Include="Source\Texturer.cpp" />
     <ClCompile Include="Vendors\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.hpp" />
     <ClInclude Include="Source\AttributeLayout.hpp" />
+    <ClInclude Include="Source\BlockTextureCoords.hpp" />
     <ClInclude Include="Source\Chunk.hpp" />
     <ClInclude Include="Source\Cube.hpp" />
     <ClInclude Include="Source\PerformanceTimer.hpp" />
@@ -171,6 +175,9 @@
     <ClInclude Include="Source\Renderer.hpp" />
     <ClInclude Include="Source\Shader.hpp" />
     <ClInclude Include="Source\Texture.hpp" />
+    <ClInclude Include="Source\Texturer.hpp" />
+    <ClInclude Include="Source\TexturerBlockType.hpp" />
+    <ClInclude Include="Source\CubeFace.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

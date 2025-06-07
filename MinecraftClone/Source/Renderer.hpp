@@ -117,6 +117,7 @@ public:
 	uint64_t getMillisecondsSinceRunPreparation();
 	float getYaw();
 	float getPitch();
+	void getTexture(uint32_t textureId, Texture& texture);
 };
 
 template <class ClockType>

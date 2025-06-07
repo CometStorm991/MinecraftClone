@@ -1,34 +1,52 @@
 #include "Application.hpp"
 
+Application::Application()
+    : chunk(Chunk(std::vector<TexturerBlockType>(), 0, 0, 0, 0))
+{
+}
+
 void Application::init()
 {
     renderer = Renderer();
     renderer.init();
 }
 
-void Application::generateChunk()
+void Application::generateChunkData()
 {
     std::mt19937 gen(1);
-    std::uniform_int_distribution<int> dist(0, 1);
+    std::uniform_int_distribution<int> dist(0, 4);
 
     for (unsigned int i = 0; i < std::powf(chunkLength, 3.0f); i++)
     {
-        chunkData.push_back(dist(gen));
+        chunkData.push_back(static_cast<TexturerBlockType>(dist(gen)));
     }
 }
 
 void Application::prepare()
 {
-    generateChunk();
-    chunk = Chunk(chunkData, chunkLength, 9);
+    uint32_t diffuseTextureAtlasId;
+    renderer.generateTexture(diffuseTextureAtlasId, "Resources/DiffuseAtlas.png", GL_RGBA);
+    uint32_t specularTextureAtlasId;
+    renderer.generateTexture(specularTextureAtlasId, "Resources/SpecularAtlas.png", GL_RGBA);
+    textureIds.push_back(diffuseTextureAtlasId);
+    textureIds.push_back(specularTextureAtlasId);
 
-    std::vector<float> grassVertices;
-    chunk.generateMesh(grassVertices);
-    vertexCount = grassVertices.size() / 9;
+    Texture diffuseTextureAtlas = Texture("", GL_RGBA);
+    renderer.getTexture(diffuseTextureAtlasId, diffuseTextureAtlas);
+
+    std::cout << "Image width: " << diffuseTextureAtlas.getWidth() << std::endl;
+    std::cout << "Image height: " << diffuseTextureAtlas.getHeight() << std::endl;
+
+    generateChunkData();
+    chunk = Chunk(chunkData, chunkLength, 9, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+
+    std::vector<float> blockVertices;
+    chunk.generateMesh(blockVertices);
+    vertexCount = blockVertices.size() / 9;
     std::cout << vertexCount << std::endl;
 
     uint32_t vertexBuffer;
-    renderer.generateVertexBuffer(vertexBuffer, grassVertices);
+    renderer.generateVertexBuffer(vertexBuffer, blockVertices);
 
     AttributeLayout posAttrib = AttributeLayout(3, GL_FLOAT);
     AttributeLayout normAttrib = AttributeLayout(3, GL_FLOAT);
@@ -38,29 +56,20 @@ void Application::prepare()
     std::vector<AttributeLayout> attribs = std::vector<AttributeLayout>();
     attribs.push_back(posAttrib);
     attribs.push_back(normAttrib);
+    attribs.push_back(texAttrib);
     attribs.push_back(typeAttrib);
 
     renderer.generateVertexArray(vaoId, vertexBuffer, attribs);
-
-    uint32_t grassBlockDiffuseId;
-    renderer.generateTexture(grassBlockDiffuseId, "Resources/GrassBlockDiffuse.png", GL_RGBA);
-    uint32_t grassBlockSpecularId;
-    renderer.generateTexture(grassBlockSpecularId, "Resources/GrassBlockSpecular.png", GL_RGBA);
 
     renderer.generateProgram(programId, "Shaders/VertexShader.glsl", "Shaders/FragmentShader.glsl");
 
     renderer.setUniform3f(programId, "viewPos", renderer.getCameraPos());
 
-    /*renderer.setUniform3f(programId, "grassBlockMaterial.grassDiffuse", glm::vec3((119.0f / 255.0f), (221.0f / 255.0f), (119.0f / 255.0f)));
-    renderer.setUniform3f(programId, "grassBlockMaterial.dirtDiffuse", glm::vec3((131.0f / 255.0f), (105.0f / 255.0f), (83.0f / 255.0f)));
-    renderer.setUniform1f(programId, "grassBlockMaterial.grassSpecular", 0.5f);
-    renderer.setUniform1f(programId, "grassBlockMaterial.dirtSpecular", 0.0f);*/
-    renderer.setUniform1i(programId, "grassBlockMaterial.diffuse", 0);
-    renderer.setUniform1i(programId, "grassBlockMaterial.specular", 1);
-    renderer.setUniform1f(programId, "grassBlockMaterial.grassShininess", 32.0f);
-    renderer.setUniform1f(programId, "grassBlockMaterial.dirtShininess", 1.0f);
+    renderer.setUniform1i(programId, "materialAtlas.diffuse", 0);
+    renderer.setUniform1i(programId, "materialAtlas.specular", 1);
+    renderer.setUniform1f(programId, "materialAtlas.shininess", 32.0f);
 
-    renderer.setUniform3f(programId, "directionalLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+    renderer.setUniform3f(programId, "directionalLight.direction", glm::vec3(-0.2f, -0.5f, -1.0f));
     renderer.setUniform3f(programId, "directionalLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
     renderer.setUniform3f(programId, "directionalLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
     renderer.setUniform3f(programId, "directionalLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));

@@ -5,15 +5,23 @@
 #include <vector>
 
 #include "Cube.hpp"
+#include "CubeFace.hpp"
+#include "Texturer.hpp"
+#include "TexturerBlockType.hpp"
 
 class Chunk
 {
 private:
-	std::vector<bool> data;
+	std::vector<TexturerBlockType> data;
 	unsigned int chunkLength;
 	unsigned int vertexFloatCount;
 
-	void getFreeVertices(std::vector<float>& meshPart, unsigned int index);
+	Texturer texturer;
+
+	uint32_t imageWidth;
+	uint32_t imageHeight;
+
+	void getFreeVertices(std::vector<float>& meshPart, unsigned int index, TexturerBlockType blockType);
 
 	bool getFreeLeft(unsigned int index);
 	bool getFreeRight(unsigned int index);
@@ -24,8 +32,7 @@ private:
 
 	int intPow(int base, int exp);
 public:
-	Chunk();
-	Chunk(const std::vector<bool>& data, unsigned int chunkLength, unsigned int vertexFloatCount);
+	Chunk(const std::vector<TexturerBlockType>& data, unsigned int chunkLength, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
 
 	void generateMesh(std::vector<float>& mesh);
 };
