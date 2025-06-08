@@ -19,11 +19,4 @@ public:
 
 	static void generatePNTTy(std::vector<float>& vertices);
 	static void generatePNTTyFace(std::vector<float>& vertices, CubeFace face);
-
-	static void generatePNTTyLeft(std::vector<float>& vertices);
-	static void generatePNTTyRight(std::vector<float>& vertices);
-	static void generatePNTTyBottom(std::vector<float>& vertices);
-	static void generatePNTTyTop(std::vector<float>& vertices);
-	static void generatePNTTyBack(std::vector<float>& vertices);
-	static void generatePNTTyFront(std::vector<float>& vertices);
 };

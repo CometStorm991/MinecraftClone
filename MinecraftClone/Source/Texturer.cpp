@@ -47,22 +47,17 @@ void Texturer::generateFace(std::vector<float>& faceMesh, CubeFace face, BlockTy
 
 	// std::cout << "StartX: " << startX << " StartY: " << startY << " EndX: " << endX << " EndY: " << endY << std::endl;
 
-	faceMesh[0 * 9 + 6] = startX;
-	faceMesh[0 * 9 + 7] = endY;
-	faceMesh[1 * 9 + 6] = endX;
-	faceMesh[1 * 9 + 7] = endY;
-	faceMesh[2 * 9 + 6] = endX;
-	faceMesh[2 * 9 + 7] = startY;
+	faceMesh[0 * 8 + 6] = startX;
+	faceMesh[0 * 8 + 7] = endY;
+	faceMesh[1 * 8 + 6] = endX;
+	faceMesh[1 * 8 + 7] = endY;
+	faceMesh[2 * 8 + 6] = endX;
+	faceMesh[2 * 8 + 7] = startY;
 
-	faceMesh[3 * 9 + 6] = startX;
-	faceMesh[3 * 9 + 7] = endY;
-	faceMesh[4 * 9 + 6] = endX;
-	faceMesh[4 * 9 + 7] = startY;
-	faceMesh[5 * 9 + 6] = startX;
-	faceMesh[5 * 9 + 7] = startY;
-
-	for (int i = 0; i < 6; i++)
-	{
-		faceMesh[i * 9 + 8] = static_cast<float>(blockType);
-	}
+	faceMesh[3 * 8 + 6] = startX;
+	faceMesh[3 * 8 + 7] = endY;
+	faceMesh[4 * 8 + 6] = endX;
+	faceMesh[4 * 8 + 7] = startY;
+	faceMesh[5 * 8 + 6] = startX;
+	faceMesh[5 * 8 + 7] = startY;
 }

@@ -14,11 +14,17 @@ void Application::init()
 void Application::generateChunkData()
 {
     std::mt19937 gen(1);
-    std::uniform_int_distribution<int> dist(1, 4);
+    std::uniform_int_distribution<int> blockExists(0, 1);
+    std::uniform_int_distribution<int> blockType(1, 4);
 
     for (unsigned int i = 0; i < std::powf(chunkLength, 3.0f); i++)
     {
-        chunkData.push_back(static_cast<BlockType>(dist(gen)));
+        if (!blockExists(gen))
+        {
+            chunkData.push_back(static_cast<BlockType>(blockExists(gen)));
+            continue;
+        }
+        chunkData.push_back(static_cast<BlockType>(blockType(gen)));
     }
 }
 
@@ -38,11 +44,11 @@ void Application::prepare()
     std::cout << "Image height: " << diffuseTextureAtlas.getHeight() << std::endl;
 
     generateChunkData();
-    chunk = Chunk(chunkData, chunkLength, 9, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+    chunk = Chunk(chunkData, chunkLength, 8, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
 
     std::vector<float> blockVertices;
     chunk.generateMesh(blockVertices);
-    vertexCount = blockVertices.size() / 9;
+    vertexCount = blockVertices.size() / 8;
     std::cout << vertexCount << std::endl;
 
     uint32_t vertexBuffer;
@@ -51,13 +57,11 @@ void Application::prepare()
     AttributeLayout posAttrib = AttributeLayout(3, GL_FLOAT);
     AttributeLayout normAttrib = AttributeLayout(3, GL_FLOAT);
     AttributeLayout texAttrib = AttributeLayout(2, GL_FLOAT);
-    AttributeLayout typeAttrib = AttributeLayout(1, GL_FLOAT);
 
     std::vector<AttributeLayout> attribs = std::vector<AttributeLayout>();
     attribs.push_back(posAttrib);
     attribs.push_back(normAttrib);
     attribs.push_back(texAttrib);
-    attribs.push_back(typeAttrib);
 
     renderer.generateVertexArray(vaoId, vertexBuffer, attribs);
 

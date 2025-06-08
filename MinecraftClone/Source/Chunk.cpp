@@ -68,8 +68,6 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, Bl
 		meshPart[i * vertexFloatCount + 0] += x;
 		meshPart[i * vertexFloatCount + 1] += y;
 		meshPart[i * vertexFloatCount + 2] += z;
-
-		meshPart[i * vertexFloatCount + 8] = static_cast<int>(blockType);
 	}
 }
 
