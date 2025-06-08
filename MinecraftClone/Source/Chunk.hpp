@@ -23,12 +23,7 @@ private:
 
 	void getFreeVertices(std::vector<float>& meshPart, unsigned int index, BlockType blockType);
 
-	bool getFreeLeft(unsigned int index);
-	bool getFreeRight(unsigned int index);
-	bool getFreeBottom(unsigned int index);
-	bool getFreeTop(unsigned int index);
-	bool getFreeBack(unsigned int index);
-	bool getFreeFront(unsigned int index);
+	bool getFreeFace(uint32_t index, CubeFace face);
 
 	int intPow(int base, int exp);
 public:

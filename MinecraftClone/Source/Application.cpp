@@ -21,7 +21,7 @@ void Application::generateChunkData()
     {
         if (!blockExists(gen))
         {
-            chunkData.push_back(static_cast<BlockType>(blockExists(gen)));
+            chunkData.push_back(BlockType::Air);
             continue;
         }
         chunkData.push_back(static_cast<BlockType>(blockType(gen)));

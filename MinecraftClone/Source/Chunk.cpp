@@ -12,7 +12,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, Bl
 	meshPart.clear();
 
 	// Get left
-	if (getFreeLeft(index))
+	if (getFreeFace(index, CubeFace::Left))
 	{
 		std::vector<float> left;
 		texturer.generateFace(left, CubeFace::Left, blockType);
@@ -20,7 +20,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, Bl
 	}
 
 	// Get right
-	if (getFreeRight(index))
+	if (getFreeFace(index, CubeFace::Right))
 	{
 		std::vector<float> right;
 		texturer.generateFace(right, CubeFace::Right, blockType);
@@ -28,7 +28,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, Bl
 	}
 
 	// Get bottom
-	if (getFreeBottom(index))
+	if (getFreeFace(index, CubeFace::Bottom))
 	{
 		std::vector<float> bottom;
 		texturer.generateFace(bottom, CubeFace::Bottom, blockType);
@@ -36,7 +36,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, Bl
 	}
 
 	// Get top
-	if (getFreeTop(index))
+	if (getFreeFace(index, CubeFace::Top))
 	{
 		std::vector<float> top;
 		texturer.generateFace(top, CubeFace::Top, blockType);
@@ -44,7 +44,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, Bl
 	}
 
 	// Get back
-	if (getFreeBack(index))
+	if (getFreeFace(index, CubeFace::Back))
 	{
 		std::vector<float> back;
 		texturer.generateFace(back, CubeFace::Back, blockType);
@@ -52,7 +52,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, Bl
 	}
 
 	// Get front
-	if (getFreeFront(index))
+	if (getFreeFace(index, CubeFace::Front))
 	{
 		std::vector<float> front;
 		texturer.generateFace(front, CubeFace::Front, blockType);
@@ -71,64 +71,55 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, unsigned int index, Bl
 	}
 }
 
-bool Chunk::getFreeLeft(unsigned int index)
+bool Chunk::getFreeFace(uint32_t index, CubeFace face)
 {
-	if ((index % intPow(chunkLength, 1)) / intPow(chunkLength, 0) == 0)
+	switch (face)
 	{
-		return true;
-	}
-	
-	return !static_cast<int>(data.at(index - intPow(chunkLength, 0)));
-}
+	case CubeFace::Left:
+		if ((index % intPow(chunkLength, 1)) / intPow(chunkLength, 0) == 0)
+		{
+			return true;
+		}
 
-bool Chunk::getFreeRight(unsigned int index)
-{
-	if ((index % intPow(chunkLength, 1)) / intPow(chunkLength, 0) == chunkLength - 1)
-	{
-		return true;
-	}
+		return !static_cast<int>(data.at(index - intPow(chunkLength, 0)));
+	case CubeFace::Right:
+		if ((index % intPow(chunkLength, 1)) / intPow(chunkLength, 0) == chunkLength - 1)
+		{
+			return true;
+		}
 
-	return !static_cast<int>(data.at(index + intPow(chunkLength, 0)));
-}
+		return !static_cast<int>(data.at(index + intPow(chunkLength, 0)));
+	case CubeFace::Bottom:
+		if ((index % intPow(chunkLength, 2)) / intPow(chunkLength, 1) == 0)
+		{
+			return true;
+		}
 
-bool Chunk::getFreeBottom(unsigned int index)
-{
-	if ((index % intPow(chunkLength, 2)) / intPow(chunkLength, 1) == 0)
-	{
-		return true;
-	}
+		return !static_cast<int>(data.at(index - intPow(chunkLength, 1)));
+	case CubeFace::Top:
+		if ((index % intPow(chunkLength, 2)) / intPow(chunkLength, 1) == chunkLength - 1)
+		{
+			return true;
+		}
 
-	return !static_cast<int>(data.at(index - intPow(chunkLength, 1)));
-}
+		return !static_cast<int>(data.at(index + intPow(chunkLength, 1)));
+	case CubeFace::Back:
+		if ((index % intPow(chunkLength, 3)) / intPow(chunkLength, 2) == 0)
+		{
+			return true;
+		}
 
-bool Chunk::getFreeTop(unsigned int index)
-{
-	if ((index % intPow(chunkLength, 2)) / intPow(chunkLength, 1) == chunkLength - 1)
-	{
-		return true;
-	}
+		return !static_cast<int>(data.at(index - intPow(chunkLength, 2)));
+	case CubeFace::Front:
+		if ((index % intPow(chunkLength, 3)) / intPow(chunkLength, 2) == chunkLength - 1)
+		{
+			return true;
+		}
 
-	return !static_cast<int>(data.at(index + intPow(chunkLength, 1)));
-}
-
-bool Chunk::getFreeBack(unsigned int index)
-{
-	if ((index % intPow(chunkLength, 3)) / intPow(chunkLength, 2) == 0)
-	{
-		return true;
-	}
-	
-	return !static_cast<int>(data.at(index - intPow(chunkLength, 2)));
-}
-
-bool Chunk::getFreeFront(unsigned int index)
-{
-	if ((index % intPow(chunkLength, 3)) / intPow(chunkLength, 2) == chunkLength - 1)
-	{
-		return true;
+		return !static_cast<int>(data.at(index + intPow(chunkLength, 2)));
 	}
 
-	return !static_cast<int>(data.at(index + intPow(chunkLength, 2)));
+	return false;
 }
 
 int Chunk::intPow(int base, int exp)
