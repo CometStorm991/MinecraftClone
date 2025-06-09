@@ -1,7 +1,7 @@
 #include "Application.hpp"
 
 Application::Application()
-    : chunk(Chunk(std::vector<BlockType>(), 0, 0, 0, 0))
+    : chunk(Chunk({}, 0, 0, 0, 0))
 {
 }
 
@@ -17,14 +17,24 @@ void Application::generateChunkData()
     std::uniform_int_distribution<int> blockExists(0, 1);
     std::uniform_int_distribution<int> blockType(1, 4);
 
-    for (unsigned int i = 0; i < std::powf(chunkLength, 3.0f); i++)
+    for (uint32_t i = 0; i < 64; i++)
     {
-        if (!blockExists(gen))
+        int32_t chunkX = i % 8;
+        int32_t chunkY = i / 8;
+        std::tuple<int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t>(chunkX, chunkY);
+
+        renderedBlockData.insert({ chunkCoords, {} });
+        std::vector<BlockType>& chunkData = renderedBlockData.at(chunkCoords);
+
+        for (uint32_t j = 0; j < std::powf(chunkLength, 3.0f); j++)
         {
-            chunkData.push_back(BlockType::Air);
-            continue;
+            /*if (!blockExists(gen))
+            {
+                chunkData.push_back(BlockType::Air);
+                continue;
+            }*/
+            chunkData.push_back(static_cast<BlockType>(blockType(gen)));
         }
-        chunkData.push_back(static_cast<BlockType>(blockType(gen)));
     }
 }
 
@@ -44,15 +54,28 @@ void Application::prepare()
     std::cout << "Image height: " << diffuseTextureAtlas.getHeight() << std::endl;
 
     generateChunkData();
-    chunk = Chunk(chunkData, chunkLength, 8, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+    chunk = Chunk(renderedBlockData, chunkLength, 8, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
 
-    std::vector<float> blockVertices;
-    chunk.generateMesh(blockVertices);
-    vertexCount = blockVertices.size() / 8;
-    std::cout << vertexCount << std::endl;
+    vertexBufferIds.resize(64);
+    vertexArrayIds.resize(64);
+    vertexCounts.resize(64);
 
-    uint32_t vertexBuffer;
-    renderer.generateVertexBuffer(vertexBuffer, blockVertices);
+    for (uint32_t i = 0; i < 64; i++)
+    {
+        int32_t chunkX = i % 8;
+        int32_t chunkY = i / 8;
+        std::tuple<int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t>(chunkX, chunkY);
+
+        renderedVertexData.insert({ chunkCoords, {} });
+        std::vector<float>& vertexData = renderedVertexData.at(chunkCoords);
+        chunk.generateMesh(vertexData, chunkCoords);
+
+        uint32_t vertexCount = vertexData.size() / 8;
+        std::cout << vertexCount << std::endl;
+
+        renderer.generateVertexBuffer(vertexBufferIds.at(i), vertexData);
+        vertexCounts.at(i) = vertexCount;
+    }
 
     AttributeLayout posAttrib = AttributeLayout(3, GL_FLOAT);
     AttributeLayout normAttrib = AttributeLayout(3, GL_FLOAT);
@@ -63,7 +86,10 @@ void Application::prepare()
     attribs.push_back(normAttrib);
     attribs.push_back(texAttrib);
 
-    renderer.generateVertexArray(vaoId, vertexBuffer, attribs);
+    for (uint32_t i = 0; i < 64; i++)
+    {
+        renderer.generateVertexArray(vertexArrayIds.at(i), vertexBufferIds.at(i), attribs);
+    }
 
     renderer.generateProgram(programId, "Shaders/VertexShader.glsl", "Shaders/FragmentShader.glsl");
 
@@ -94,24 +120,16 @@ void Application::run()
 
     glm::mat4 model = glm::mat4(1.0f);
 
-    renderer.prepareForDraw(programId, textureIds, vaoId);
-
-    // PerformanceTimer renderLoopTimer = PerformanceTimer("Render Loop");
-    /*int x = chunkData.at(i * 3);
-        int y = chunkData.at(i * 3 + 1);
-        int z = chunkData.at(i * 3 + 2);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(x, y, z));
-        renderer.updateModelMatrix(model);*/
-    renderer.setUniformMatrix4fv(programId, "normalMatrix", glm::transpose(glm::inverse(model)));
-    renderer.applyMvp(programId, "model", "view", "projection");
-    renderer.setUniform3f(programId, "viewPos", renderer.getCameraPos());
-    renderer.draw(vertexCount);
-
-    // renderLoopTimer.stop();
-
-    renderer.unprepareForDraw(programId, textureIds);
+    for (uint32_t i = 0; i < 64; i++)
+    {
+        renderer.prepareForDraw(programId, textureIds, vertexArrayIds.at(i));
+        renderer.setUniformMatrix4fv(programId, "normalMatrix", glm::transpose(glm::inverse(model)));
+        renderer.applyMvp(programId, "model", "view", "projection");
+        renderer.setUniform3f(programId, "viewPos", renderer.getCameraPos());
+        renderer.draw(vertexCounts.at(i));
+        renderer.unprepareForDraw(programId, textureIds);
+    }
+    
 
     renderer.calculateFps();
     renderer.updateGLFW();

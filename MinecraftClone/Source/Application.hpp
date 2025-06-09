@@ -1,6 +1,9 @@
 #pragma once
 
 #include <random>
+#include <tuple>
+#include <unordered_map>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -24,13 +27,15 @@ private:
 	
 
 	uint32_t programId;
-	uint32_t vaoId;
+	std::vector<uint32_t> vertexBufferIds;
+	std::vector<uint32_t> vertexArrayIds;
 	std::vector<uint32_t> textureIds;
 
 	Chunk chunk;
 	uint32_t chunkLength = 16;
-	std::vector<BlockType> chunkData;
-	uint32_t vertexCount;
+	std::map<std::tuple<int32_t, int32_t>, std::vector<BlockType>> renderedBlockData;
+	std::map<std::tuple<int32_t, int32_t>, std::vector<float>> renderedVertexData;
+	std::vector<uint32_t> vertexCounts;
 
 	void generateChunkData();
 	

@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <iostream>
+#include <tuple>
+#include <map>
 #include <vector>
 
 #include "BlockType.hpp"
@@ -12,7 +14,7 @@
 class Chunk
 {
 private:
-	std::vector<BlockType> data;
+	std::map<std::tuple<int32_t, int32_t>, std::vector<BlockType>> data;
 	unsigned int chunkLength;
 	unsigned int vertexFloatCount;
 
@@ -21,13 +23,13 @@ private:
 	uint32_t imageWidth;
 	uint32_t imageHeight;
 
-	void getFreeVertices(std::vector<float>& meshPart, unsigned int index, BlockType blockType);
+	void getFreeVertices(std::vector<float>& meshPart, unsigned int index, std::tuple<int32_t, int32_t> chunkCoords, BlockType blockType);
 
-	bool getFreeFace(uint32_t index, CubeFace face);
+	bool getFreeFace(uint32_t index, std::tuple<int32_t, int32_t> chunkCoords, CubeFace face);
 
 	int intPow(int base, int exp);
 public:
-	Chunk(const std::vector<BlockType>& data, unsigned int chunkLength, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
+	Chunk(const std::map<std::tuple<int32_t, int32_t>, std::vector<BlockType>>& data, unsigned int chunkLength, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
 
-	void generateMesh(std::vector<float>& mesh);
+	void generateMesh(std::vector<float>& mesh, std::tuple<int32_t, int32_t>);
 };
