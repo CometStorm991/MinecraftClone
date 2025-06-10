@@ -1,7 +1,7 @@
 #include "Application.hpp"
 
 Application::Application()
-    : chunk(Chunk({}, 0, 0, 0, 0))
+    : chunk(Chunk({}, 0, 0, 0, 0, 0))
 {
 }
 
@@ -11,31 +11,9 @@ void Application::init()
     renderer.init();
 }
 
-void Application::generateChunkData()
+int Application::intPow(int base, int exp)
 {
-    std::mt19937 gen(1);
-    std::uniform_int_distribution<int> blockExists(0, 1);
-    std::uniform_int_distribution<int> blockType(1, 4);
-
-    for (uint32_t i = 0; i < 64; i++)
-    {
-        int32_t chunkX = i % 8;
-        int32_t chunkY = i / 8;
-        std::tuple<int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t>(chunkX, chunkY);
-
-        renderedBlockData.insert({ chunkCoords, {} });
-        std::vector<BlockType>& chunkData = renderedBlockData.at(chunkCoords);
-
-        for (uint32_t j = 0; j < std::powf(chunkLength, 3.0f); j++)
-        {
-            /*if (!blockExists(gen))
-            {
-                chunkData.push_back(BlockType::Air);
-                continue;
-            }*/
-            chunkData.push_back(static_cast<BlockType>(blockType(gen)));
-        }
-    }
+    return static_cast<int>(std::powf(base, exp));
 }
 
 void Application::prepare()
@@ -53,25 +31,26 @@ void Application::prepare()
     std::cout << "Image width: " << diffuseTextureAtlas.getWidth() << std::endl;
     std::cout << "Image height: " << diffuseTextureAtlas.getHeight() << std::endl;
 
-    generateChunkData();
-    chunk = Chunk(renderedBlockData, chunkLength, 8, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+    chunk = Chunk(renderedBlockData, chunkLength, chunkRadius, vertexFloatCount, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+    chunk.generateBlocks();
 
     vertexBufferIds.resize(64);
     vertexArrayIds.resize(64);
     vertexCounts.resize(64);
 
-    for (uint32_t i = 0; i < 64; i++)
+    for (uint32_t i = 0; i < intPow(chunkRadius, 3); i++)
     {
-        int32_t chunkX = i % 8;
-        int32_t chunkY = i / 8;
-        std::tuple<int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t>(chunkX, chunkY);
+        int32_t chunkX = (i % intPow(chunkRadius, 1)) / intPow(chunkRadius, 0);
+        int32_t chunkY = (i % intPow(chunkRadius, 2)) / intPow(chunkRadius, 1);
+        int32_t chunkZ = (i % intPow(chunkRadius, 3)) / intPow(chunkRadius, 2);
+        std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
 
         renderedVertexData.insert({ chunkCoords, {} });
         std::vector<float>& vertexData = renderedVertexData.at(chunkCoords);
         chunk.generateMesh(vertexData, chunkCoords);
 
-        uint32_t vertexCount = vertexData.size() / 8;
-        std::cout << vertexCount << std::endl;
+        uint32_t vertexCount = vertexData.size() / vertexFloatCount;
+        // std::cout << vertexCount << std::endl;
 
         renderer.generateVertexBuffer(vertexBufferIds.at(i), vertexData);
         vertexCounts.at(i) = vertexCount;
@@ -86,7 +65,7 @@ void Application::prepare()
     attribs.push_back(normAttrib);
     attribs.push_back(texAttrib);
 
-    for (uint32_t i = 0; i < 64; i++)
+    for (uint32_t i = 0; i < intPow(chunkRadius, 3); i++)
     {
         renderer.generateVertexArray(vertexArrayIds.at(i), vertexBufferIds.at(i), attribs);
     }
@@ -120,7 +99,7 @@ void Application::run()
 
     glm::mat4 model = glm::mat4(1.0f);
 
-    for (uint32_t i = 0; i < 64; i++)
+    for (uint32_t i = 0; i < intPow(chunkRadius, 3); i++)
     {
         renderer.prepareForDraw(programId, textureIds, vertexArrayIds.at(i));
         renderer.setUniformMatrix4fv(programId, "normalMatrix", glm::transpose(glm::inverse(model)));

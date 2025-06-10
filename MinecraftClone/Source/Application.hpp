@@ -30,14 +30,16 @@ private:
 	std::vector<uint32_t> vertexBufferIds;
 	std::vector<uint32_t> vertexArrayIds;
 	std::vector<uint32_t> textureIds;
+	uint32_t vertexFloatCount = 8;
 
 	Chunk chunk;
 	uint32_t chunkLength = 16;
-	std::map<std::tuple<int32_t, int32_t>, std::vector<BlockType>> renderedBlockData;
-	std::map<std::tuple<int32_t, int32_t>, std::vector<float>> renderedVertexData;
+	uint32_t chunkRadius = 4;
+	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<BlockType>> renderedBlockData;
+	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<float>> renderedVertexData;
 	std::vector<uint32_t> vertexCounts;
 
-	void generateChunkData();
+	int intPow(int base, int exp);
 	
 	void prepareForRun();
 public:

@@ -4,7 +4,7 @@ Renderer::Renderer()
     :
     model(glm::mat4(1.0f)),
     view(glm::mat4(1.0f)),
-    projection(glm::perspective(glm::radians(60.0f), 1920.0f / 1080.0f, 0.1f, 100.0f)),
+    projection(glm::perspective(glm::radians(60.0f), 1920.0f / 1080.0f, 0.1f, 1024.0f)),
     mvp(glm::mat4(1.0f)),
 
     cameraPos(glm::vec3(0.0f, 0.0f, -30.0f)),
@@ -229,7 +229,7 @@ void Renderer::prepareForRender()
 {
     //PerformanceTimer timer = PerformanceTimer("Prepare for Render");
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     previousMillis = milliseconds;
