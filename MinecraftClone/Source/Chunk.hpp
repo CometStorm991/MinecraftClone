@@ -17,13 +17,15 @@ class Chunk
 private:
 	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<BlockType>> data;
 	unsigned int chunkLength;
-	uint32_t chunkRadius;
+	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts;
 	unsigned int vertexFloatCount;
 
 	Texturer texturer;
 
 	uint32_t imageWidth;
 	uint32_t imageHeight;
+
+	void placeBlock(const std::tuple<int32_t, int32_t, int32_t>& worldCoords, BlockType blockType);
 
 	void getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32_t, int32_t, int32_t>& worldCoords, BlockType blockType);
 
@@ -35,7 +37,7 @@ private:
 
 	int intPow(int base, int exp);
 public:
-	Chunk(const std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<BlockType>>& data, unsigned int chunkLength, uint32_t chunkRadius, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
+	Chunk(const std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<BlockType>>& data, unsigned int chunkLength, const std::tuple<uint32_t, uint32_t, uint32_t>& chunkCounts, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
 
 	void generateBlocks();
 	void generateMesh(std::vector<float>& mesh, std::tuple<int32_t, int32_t, int32_t>);

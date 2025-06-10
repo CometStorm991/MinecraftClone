@@ -34,7 +34,8 @@ private:
 
 	Chunk chunk;
 	uint32_t chunkLength = 16;
-	uint32_t chunkRadius = 4;
+	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts = std::make_tuple(8, 4, 8);
+	uint32_t totalChunkCount = std::get<0>(chunkCounts) * std::get<1>(chunkCounts) * std::get<2>(chunkCounts);
 	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<BlockType>> renderedBlockData;
 	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<float>> renderedVertexData;
 	std::vector<uint32_t> vertexCounts;

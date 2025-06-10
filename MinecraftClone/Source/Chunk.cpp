@@ -1,10 +1,28 @@
 #include "Chunk.hpp"
 
-Chunk::Chunk(const std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<BlockType>>& data, unsigned int chunkLength, uint32_t chunkRadius, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight)
-	: data(data), chunkLength(chunkLength), chunkRadius(chunkRadius), vertexFloatCount(vertexFloatCount), imageWidth(imageWidth), imageHeight(imageHeight),
+Chunk::Chunk(const std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<BlockType>>& data, unsigned int chunkLength, const std::tuple<uint32_t, uint32_t, uint32_t>& chunkCounts, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight)
+	: data(data), chunkLength(chunkLength), chunkCounts(chunkCounts), vertexFloatCount(vertexFloatCount), imageWidth(imageWidth), imageHeight(imageHeight),
 	texturer(Texturer(imageWidth, imageHeight))
 {
 	
+}
+
+void Chunk::placeBlock(const std::tuple<int32_t, int32_t, int32_t>& worldCoords, BlockType blockType)
+{
+	std::tuple<int32_t, int32_t, int32_t> chunkCoords;
+	std::tuple<uint32_t, uint32_t, uint32_t> blockCoords;
+	worldToChunkCoords(worldCoords, chunkCoords, blockCoords);
+
+	int32_t chunkX = std::get<0>(chunkCoords);
+	int32_t chunkY = std::get<1>(chunkCoords);
+	int32_t chunkZ = std::get<2>(chunkCoords);
+
+	uint32_t blockX = std::get<0>(blockCoords);
+	uint32_t blockY = std::get<1>(blockCoords);
+	uint32_t blockZ = std::get<2>(blockCoords);
+
+	std::vector<BlockType>& chunkData = data.at(chunkCoords);
+	chunkData.at(blockZ * intPow(chunkLength, 2) + blockY * intPow(chunkLength, 1) + blockX * intPow(chunkLength, 0)) = blockType;
 }
 
 void Chunk::generateBlocks()
@@ -13,24 +31,62 @@ void Chunk::generateBlocks()
 	std::uniform_int_distribution<int> blockExists(0, 1);
 	std::uniform_int_distribution<int> blockType(1, 4);
 
-	for (uint32_t i = 0; i < intPow(chunkRadius, 3); i++)
+	uint32_t chunkCountX = std::get<0>(chunkCounts);
+	uint32_t chunkCountY = std::get<1>(chunkCounts);
+	uint32_t chunkCountZ = std::get<2>(chunkCounts);
+
+	for (uint32_t i = 0; i < chunkCountX * chunkCountY * chunkCountZ; i++)
 	{
-		int32_t chunkX = (i % intPow(chunkRadius, 1)) / intPow(chunkRadius, 0);
-		int32_t chunkY = (i % intPow(chunkRadius, 2)) / intPow(chunkRadius, 1);
-		int32_t chunkZ = (i % intPow(chunkRadius, 3)) / intPow(chunkRadius, 2);
+		int32_t chunkX = (i % chunkCountX) / 1;
+		int32_t chunkY = (i % (chunkCountX * chunkCountY)) / chunkCountX;
+		int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
 		std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
 
 		data.insert({ chunkCoords, {} });
 		std::vector<BlockType>& chunkData = data.at(chunkCoords);
+		chunkData.resize(intPow(chunkLength, 3));
+	}
 
-		for (uint32_t j = 0; j < std::powf(chunkLength, 3.0f); j++)
+	for (uint32_t i = 0; i < chunkCountX * chunkCountY * chunkCountZ; i++)
+	{
+		int32_t chunkX = (i % chunkCountX) / 1;
+		int32_t chunkY = (i % (chunkCountX * chunkCountY)) / chunkCountX;
+		int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
+		std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
+
+		for (uint32_t j = 0; j < intPow(chunkLength, 2); j++)
 		{
-			if (!blockExists(gen))
+			uint32_t blockX = (j % intPow(chunkLength, 1)) / intPow(chunkLength, 0);
+			uint32_t blockZ = (j % intPow(chunkLength, 2)) / intPow(chunkLength, 1);
+
+			int32_t worldX = chunkX * chunkLength + blockX;
+			int32_t worldZ = chunkZ * chunkLength + blockZ;
+
+			uint32_t height = 8.0f * (std::sin(worldX / 8.0f) + std::sin(worldZ / 8.0f) + 2.0f);
+			height = std::min(height, chunkLength * chunkCountY - 1);
+			height = std::max(height, 1u);
+
+			for (uint32_t k = 0; k < height; k++)
+			{
+				uint32_t worldY = k;
+				std::tuple<uint32_t, uint32_t, uint32_t> worldCoords = std::make_tuple(worldX, worldY, worldZ);
+
+				if (worldY < 8)
+				{
+					placeBlock(worldCoords, BlockType::Sand);
+				}
+				else
+				{
+					placeBlock(worldCoords, BlockType::Grass);
+				}
+			}
+
+			/*if (!blockExists(gen))
 			{
 				chunkData.push_back(BlockType::Air);
 				continue;
 			}
-			chunkData.push_back(static_cast<BlockType>(blockType(gen)));
+			chunkData.push_back(static_cast<BlockType>(blockType(gen)));*/
 		}
 	}
 }

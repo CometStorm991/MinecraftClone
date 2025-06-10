@@ -1,7 +1,7 @@
 #include "Application.hpp"
 
 Application::Application()
-    : chunk(Chunk({}, 0, 0, 0, 0, 0))
+    : chunk(Chunk({}, 0, std::make_tuple(0, 0, 0), 0, 0, 0))
 {
 }
 
@@ -31,18 +31,22 @@ void Application::prepare()
     std::cout << "Image width: " << diffuseTextureAtlas.getWidth() << std::endl;
     std::cout << "Image height: " << diffuseTextureAtlas.getHeight() << std::endl;
 
-    chunk = Chunk(renderedBlockData, chunkLength, chunkRadius, vertexFloatCount, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+    chunk = Chunk(renderedBlockData, chunkLength, chunkCounts, vertexFloatCount, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
     chunk.generateBlocks();
 
-    vertexBufferIds.resize(64);
-    vertexArrayIds.resize(64);
-    vertexCounts.resize(64);
+    uint32_t chunkCountX = std::get<0>(chunkCounts);
+    uint32_t chunkCountY = std::get<1>(chunkCounts);
+    uint32_t chunkCountZ = std::get<2>(chunkCounts);
 
-    for (uint32_t i = 0; i < intPow(chunkRadius, 3); i++)
+    vertexBufferIds.resize(totalChunkCount);
+    vertexArrayIds.resize(totalChunkCount);
+    vertexCounts.resize(totalChunkCount);
+
+    for (uint32_t i = 0; i < totalChunkCount; i++)
     {
-        int32_t chunkX = (i % intPow(chunkRadius, 1)) / intPow(chunkRadius, 0);
-        int32_t chunkY = (i % intPow(chunkRadius, 2)) / intPow(chunkRadius, 1);
-        int32_t chunkZ = (i % intPow(chunkRadius, 3)) / intPow(chunkRadius, 2);
+        int32_t chunkX = (i % chunkCountX) / 1;
+        int32_t chunkY = (i % (chunkCountX * chunkCountY)) / chunkCountX;
+        int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
         std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
 
         renderedVertexData.insert({ chunkCoords, {} });
@@ -65,7 +69,7 @@ void Application::prepare()
     attribs.push_back(normAttrib);
     attribs.push_back(texAttrib);
 
-    for (uint32_t i = 0; i < intPow(chunkRadius, 3); i++)
+    for (uint32_t i = 0; i < totalChunkCount; i++)
     {
         renderer.generateVertexArray(vertexArrayIds.at(i), vertexBufferIds.at(i), attribs);
     }
@@ -78,7 +82,7 @@ void Application::prepare()
     renderer.setUniform1i(programId, "materialAtlas.specular", 1);
     renderer.setUniform1f(programId, "materialAtlas.shininess", 32.0f);
 
-    renderer.setUniform3f(programId, "directionalLight.direction", glm::vec3(-0.2f, 0.5f, 1.0f));
+    renderer.setUniform3f(programId, "directionalLight.direction", glm::vec3(-1.0f, -0.5f, -1.0f));
     renderer.setUniform3f(programId, "directionalLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
     renderer.setUniform3f(programId, "directionalLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
     renderer.setUniform3f(programId, "directionalLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -99,7 +103,7 @@ void Application::run()
 
     glm::mat4 model = glm::mat4(1.0f);
 
-    for (uint32_t i = 0; i < intPow(chunkRadius, 3); i++)
+    for (uint32_t i = 0; i < totalChunkCount; i++)
     {
         renderer.prepareForDraw(programId, textureIds, vertexArrayIds.at(i));
         renderer.setUniformMatrix4fv(programId, "normalMatrix", glm::transpose(glm::inverse(model)));
