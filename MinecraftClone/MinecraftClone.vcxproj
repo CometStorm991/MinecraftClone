@@ -162,6 +162,7 @@
     <ClCompile Include="Source\Shader.cpp" />
     <ClCompile Include="Source\Texture.cpp" />
     <ClCompile Include="Source\Texturer.cpp" />
+    <ClCompile Include="Source\ThreadPool.cpp" />
     <ClCompile Include="Vendors\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +179,7 @@
     <ClInclude Include="Source\Texturer.hpp" />
     <ClInclude Include="Source\BlockType.hpp" />
     <ClInclude Include="Source\CubeFace.hpp" />
+    <ClInclude Include="Source\ThreadPool.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

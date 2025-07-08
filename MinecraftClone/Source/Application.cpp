@@ -84,7 +84,7 @@ void Application::prepare()
 
     renderer.setUniform3f(programId, "directionalLight.direction", glm::vec3(-1.0f, -0.5f, -1.0f));
     renderer.setUniform3f(programId, "directionalLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-    renderer.setUniform3f(programId, "directionalLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+    renderer.setUniform3f(programId, "directionalLight.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
     renderer.setUniform3f(programId, "directionalLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
     prepareForRun();

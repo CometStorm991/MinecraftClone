@@ -80,13 +80,6 @@ void Chunk::generateBlocks()
 					placeBlock(worldCoords, BlockType::Grass);
 				}
 			}
-
-			/*if (!blockExists(gen))
-			{
-				chunkData.push_back(BlockType::Air);
-				continue;
-			}
-			chunkData.push_back(static_cast<BlockType>(blockType(gen)));*/
 		}
 	}
 }
