@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <mutex>
 #include <random>
 #include <tuple>
 #include <map>
@@ -10,7 +11,9 @@
 #include "BlockType.hpp"
 #include "Cube.hpp"
 #include "CubeFace.hpp"
+#include "PerformanceTimer.hpp"
 #include "Texturer.hpp"
+#include "ThreadPool.hpp"
 
 class Chunk
 {

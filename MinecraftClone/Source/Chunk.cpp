@@ -47,41 +47,53 @@ void Chunk::generateBlocks()
 		chunkData.resize(intPow(chunkLength, 3));
 	}
 
+	PerformanceTimer timer = PerformanceTimer("hey");
+	ThreadPool pool = ThreadPool(6);
+	std::mutex mutex;
+
 	for (uint32_t i = 0; i < chunkCountX * chunkCountY * chunkCountZ; i++)
 	{
-		int32_t chunkX = (i % chunkCountX) / 1;
-		int32_t chunkY = (i % (chunkCountX * chunkCountY)) / chunkCountX;
-		int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
-		std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
+		pool.enqueue([this, i, chunkCountX, chunkCountY, chunkCountZ, &mutex]() {
+			int32_t chunkX = (i % chunkCountX) / 1;
+			int32_t chunkY = (i % (chunkCountX * chunkCountY)) / chunkCountX;
+			int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
+			std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
 
-		for (uint32_t j = 0; j < intPow(chunkLength, 2); j++)
-		{
-			uint32_t blockX = (j % intPow(chunkLength, 1)) / intPow(chunkLength, 0);
-			uint32_t blockZ = (j % intPow(chunkLength, 2)) / intPow(chunkLength, 1);
-
-			int32_t worldX = chunkX * chunkLength + blockX;
-			int32_t worldZ = chunkZ * chunkLength + blockZ;
-
-			uint32_t height = 8.0f * (std::sin(worldX / 8.0f) + std::sin(worldZ / 8.0f) + 2.0f);
-			height = std::min(height, chunkLength * chunkCountY - 1);
-			height = std::max(height, 1u);
-
-			for (uint32_t k = 0; k < height; k++)
+			for (uint32_t j = 0; j < intPow(chunkLength, 2); j++)
 			{
-				uint32_t worldY = k;
-				std::tuple<uint32_t, uint32_t, uint32_t> worldCoords = std::make_tuple(worldX, worldY, worldZ);
+				uint32_t blockX = (j % intPow(chunkLength, 1)) / intPow(chunkLength, 0);
+				uint32_t blockZ = (j % intPow(chunkLength, 2)) / intPow(chunkLength, 1);
 
-				if (worldY < 8)
+				int32_t worldX = chunkX * chunkLength + blockX;
+				int32_t worldZ = chunkZ * chunkLength + blockZ;
+
+				uint32_t height = 8.0f * (std::sin(worldX / 8.0f) + std::sin(worldZ / 8.0f) + 2.0f);
+				height = std::min(height, chunkLength * chunkCountY - 1);
+				height = std::max(height, 1u);
+
+				for (uint32_t k = 0; k < height; k++)
 				{
-					placeBlock(worldCoords, BlockType::Sand);
-				}
-				else
-				{
-					placeBlock(worldCoords, BlockType::Grass);
+					uint32_t worldY = k;
+					std::tuple<uint32_t, uint32_t, uint32_t> worldCoords = std::make_tuple(worldX, worldY, worldZ);
+
+					{
+						std::lock_guard<std::mutex> lock(mutex);
+						if (worldY < 8)
+						{
+							placeBlock(worldCoords, BlockType::Sand);
+						}
+						else
+						{
+							placeBlock(worldCoords, BlockType::Grass);
+						}
+					}
 				}
 			}
-		}
+		});
 	}
+
+	pool.stopAndWait();
+	timer.stop();
 }
 
 void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32_t, int32_t, int32_t>& worldCoords, BlockType blockType)
