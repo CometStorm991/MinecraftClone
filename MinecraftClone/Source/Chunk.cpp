@@ -47,13 +47,11 @@ void Chunk::generateBlocks()
 		chunkData.resize(intPow(chunkLength, 3));
 	}
 
-	PerformanceTimer timer = PerformanceTimer("hey");
 	ThreadPool pool = ThreadPool(6);
-	std::mutex mutex;
 
 	for (uint32_t i = 0; i < chunkCountX * chunkCountY * chunkCountZ; i++)
 	{
-		pool.enqueue([this, i, chunkCountX, chunkCountY, chunkCountZ, &mutex]() {
+		pool.enqueue([this, i, chunkCountX, chunkCountY, chunkCountZ]() {
 			int32_t chunkX = (i % chunkCountX) / 1;
 			int32_t chunkY = (i % (chunkCountX * chunkCountY)) / chunkCountX;
 			int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
@@ -76,24 +74,22 @@ void Chunk::generateBlocks()
 					uint32_t worldY = k;
 					std::tuple<uint32_t, uint32_t, uint32_t> worldCoords = std::make_tuple(worldX, worldY, worldZ);
 
+					if (worldY < 8)
 					{
-						std::lock_guard<std::mutex> lock(mutex);
-						if (worldY < 8)
-						{
-							placeBlock(worldCoords, BlockType::Sand);
-						}
-						else
-						{
-							placeBlock(worldCoords, BlockType::Grass);
-						}
+						placeBlock(worldCoords, BlockType::Sand);
+					}
+					else
+					{
+						placeBlock(worldCoords, BlockType::Grass);
 					}
 				}
 			}
 		});
 	}
-
+	
 	pool.stopAndWait();
-	timer.stop();
+	
+	
 }
 
 void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32_t, int32_t, int32_t>& worldCoords, BlockType blockType)

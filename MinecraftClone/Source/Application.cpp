@@ -32,7 +32,9 @@ void Application::prepare()
     std::cout << "Image height: " << diffuseTextureAtlas.getHeight() << std::endl;
 
     chunk = Chunk(renderedBlockData, chunkLength, chunkCounts, vertexFloatCount, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+    PerformanceTimer chunkGenerationTimer = PerformanceTimer("Chunk generation");
     chunk.generateBlocks();
+    chunkGenerationTimer.stop();
 
     uint32_t chunkCountX = std::get<0>(chunkCounts);
     uint32_t chunkCountY = std::get<1>(chunkCounts);
@@ -41,6 +43,8 @@ void Application::prepare()
     vertexBufferIds.resize(totalChunkCount);
     vertexArrayIds.resize(totalChunkCount);
     vertexCounts.resize(totalChunkCount);
+
+    PerformanceTimer meshGenerationTimer = PerformanceTimer("Mesh generation");
 
     for (uint32_t i = 0; i < totalChunkCount; i++)
     {
@@ -59,6 +63,8 @@ void Application::prepare()
         renderer.generateVertexBuffer(vertexBufferIds.at(i), vertexData);
         vertexCounts.at(i) = vertexCount;
     }
+
+    meshGenerationTimer.stop();
 
     AttributeLayout posAttrib = AttributeLayout(3, GL_FLOAT);
     AttributeLayout normAttrib = AttributeLayout(3, GL_FLOAT);
