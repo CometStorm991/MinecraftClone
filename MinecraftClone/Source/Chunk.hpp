@@ -21,6 +21,8 @@ private:
 	unsigned int chunkLength;
 	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts;
 	unsigned int vertexFloatCount;
+	int32_t minGenerationY = 0;
+	int32_t maxGenerationY = 63;
 
 	Texturer texturer;
 
@@ -42,5 +44,8 @@ public:
 	Chunk(const std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<BlockType>>& data, unsigned int chunkLength, const std::tuple<uint32_t, uint32_t, uint32_t>& chunkCounts, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
 
 	void generateBlocks();
+	void generateChunkData(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
+	int32_t getMaxColumnY(int32_t worldX, int32_t worldZ);
+
 	void generateMesh(std::vector<float>& mesh, std::tuple<int32_t, int32_t, int32_t>);
 };

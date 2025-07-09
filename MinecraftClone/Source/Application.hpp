@@ -39,6 +39,9 @@ private:
 	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<BlockType>> renderedBlockData;
 	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<float>> renderedVertexData;
 	std::vector<uint32_t> vertexCounts;
+	uint32_t renderedChunkCount;
+
+	ThreadPool pool;
 
 	int intPow(int base, int exp);
 	

@@ -89,7 +89,52 @@ void Chunk::generateBlocks()
 	
 	pool.stopAndWait();
 	
+}
+
+void Chunk::generateChunkData(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords)
+{
+	int32_t chunkX = std::get<0>(chunkCoords);
+	int32_t chunkY = std::get<1>(chunkCoords);
+	int32_t chunkZ = std::get<2>(chunkCoords);
+
 	
+	for (uint32_t i = 0; i < intPow(chunkLength, 2); i++)
+	{
+		uint32_t blockX = (i % intPow(chunkLength, 1)) / intPow(chunkLength, 0);
+		uint32_t blockZ = (i % intPow(chunkLength, 2)) / intPow(chunkLength, 1);
+		std::tuple<uint32_t, uint32_t, uint32_t> blockCoords = std::make_tuple(blockX, 0, blockZ);
+
+		std::tuple<int32_t, int32_t, int32_t> worldCoords;
+		chunkToWorldCoords(chunkCoords, blockCoords, worldCoords);
+
+		int32_t worldX = std::get<0>(worldCoords);
+		int32_t worldZ = std::get<2>(worldCoords);
+
+		int32_t maxY = getMaxColumnY(worldX, worldZ);
+
+		for (uint32_t j = minGenerationY; j <= maxY; j++)
+		{
+			uint32_t worldY = j;
+			std::tuple<uint32_t, uint32_t, uint32_t> worldCoords = std::make_tuple(worldX, worldY, worldZ);
+
+			if (worldY < 8)
+			{
+				placeBlock(worldCoords, BlockType::Sand);
+			}
+			else
+			{
+				placeBlock(worldCoords, BlockType::Grass);
+			}
+		}
+	}
+}
+
+int32_t Chunk::getMaxColumnY(int32_t worldX, int32_t worldZ)
+{
+	int32_t maxY = 8.0f * (std::sin(worldX / 8.0f) + std::sin(worldZ / 8.0f) + 2.0f);
+	maxY = std::min(maxY, maxGenerationY);
+	maxY = std::max(maxY, minGenerationY);
+	return maxY;
 }
 
 void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32_t, int32_t, int32_t>& worldCoords, BlockType blockType)
