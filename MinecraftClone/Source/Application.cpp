@@ -1,7 +1,7 @@
 #include "Application.hpp"
 
 Application::Application()
-    : chunk(Chunk({}, 0, std::make_tuple(0, 0, 0), 0, 0, 0)), pool(ThreadPool(6))
+    : chunk(Chunk(0, std::make_tuple(0, 0, 0), 0, 0, 0)), pool(ThreadPool(6))
 {
 }
 
@@ -31,10 +31,6 @@ void Application::prepare()
     std::cout << "Image width: " << diffuseTextureAtlas.getWidth() << std::endl;
     std::cout << "Image height: " << diffuseTextureAtlas.getHeight() << std::endl;
 
-    vertexBufferIds.resize(totalChunkCount);
-    vertexArrayIds.resize(totalChunkCount);
-    vertexCounts.resize(totalChunkCount);
-
     AttributeLayout posAttrib = AttributeLayout(3, GL_FLOAT);
     AttributeLayout normAttrib = AttributeLayout(3, GL_FLOAT);
     AttributeLayout texAttrib = AttributeLayout(2, GL_FLOAT);
@@ -44,36 +40,36 @@ void Application::prepare()
     attribs.push_back(normAttrib);
     attribs.push_back(texAttrib);
 
-    chunk = Chunk(renderedBlockData, chunkLength, chunkCounts, vertexFloatCount, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+    chunk = Chunk(chunkLength, chunkCounts, vertexFloatCount, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
 
     for (uint32_t i = 0; i < totalChunkCount; i++)
     {
-        pool.enqueue([this, i, &attribs]() {
-            uint32_t chunkCountX = std::get<0>(chunkCounts);
-            uint32_t chunkCountY = std::get<1>(chunkCounts);
-            uint32_t chunkCountZ = std::get<2>(chunkCounts);
-            int32_t chunkX = (i % chunkCountX) / 1;
-            int32_t chunkY = (i % (chunkCountX * chunkCountY)) / chunkCountX;
-            int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
-            std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
+        uint32_t chunkCountX = std::get<0>(chunkCounts);
+        uint32_t chunkCountY = std::get<1>(chunkCounts);
+        uint32_t chunkCountZ = std::get<2>(chunkCounts);
+        int32_t chunkX = (i % chunkCountX) / 1;
+        int32_t chunkY = (i % (chunkCountX * chunkCountY)) / chunkCountX;
+        int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
+        std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
 
-            chunk.generateChunkData(chunkCoords);
-
-            renderedVertexData.insert({ chunkCoords, {} });
-            std::vector<float>& vertexData = renderedVertexData.at(chunkCoords);
+        pool.enqueue([this, chunkCoords, &attribs]() {
+            std::vector<BlockType>& chunkData = chunk.lockChunk(chunkCoords);
+            
+            chunk.generateBlocks(chunkCoords, chunkData);
+            
+            std::unique_lock<std::mutex> meshesMutexLock(meshesMutex);
+            meshes.insert({ chunkCoords, {} });
+            std::vector<float>& vertexData = meshes.at(chunkCoords);
+            meshesMutexLock.unlock();
             chunk.generateMesh(vertexData, chunkCoords);
 
-            uint32_t vertexCount = vertexData.size() / vertexFloatCount;
-            // std::cout << vertexCount << std::endl;
-
-            renderer.generateVertexBuffer(vertexBufferIds.at(i), vertexData);
-            vertexCounts.at(i) = vertexCount;
-
-            renderer.generateVertexArray(vertexArrayIds.at(i), vertexBufferIds.at(i), attribs);
-
-            renderedChunkCount++;
+            chunk.unlockChunk(chunkCoords);
         });
     }
+
+    
+
+    renderedChunkCount++;
 
     renderer.generateProgram(programId, "Shaders/VertexShader.glsl", "Shaders/FragmentShader.glsl");
 
@@ -98,28 +94,36 @@ void Application::run()
     //std::cout << "----------------------------------------------" << std::endl;
 
     // PerformanceTimer runTimer = PerformanceTimer("Run");
+    if (hello)
+
+    uint32_t vertexCount = vertexData.size() / vertexFloatCount;
+    vertexCounts.insert({ chunkCoords, vertexCount });
+
+    vertexBufferIds.insert({ chunkCoords, 0 });
+    uint32_t& vertexBufferId = vertexBufferIds.at(chunkCoords);
+    renderer.generateVertexBuffer(vertexBufferId, vertexData);
+
+    vertexArrayIds.insert({ chunkCoords, 0 });
+    uint32_t& vertexArrayId = vertexArrayIds.at(chunkCoords);
+    renderer.generateVertexArray(vertexArrayId, vertexBufferId, attribs);
+
+
 
     renderer.prepareForRender();
     renderer.calculateCameraTransform();
 
     glm::mat4 model = glm::mat4(1.0f);
 
-    for (uint32_t i = 0; i < vertexArrayIds.size(); i++)
+    for (auto& [chunkCoords, vertexArrayId] : vertexArrayIds)
     {
-        if (vertexArrayIds.at(i) == 0)
-        {
-            continue;
-        }
-
-        renderer.prepareForDraw(programId, textureIds, vertexArrayIds.at(i));
+        renderer.prepareForDraw(programId, textureIds, vertexArrayId);
         renderer.setUniformMatrix4fv(programId, "normalMatrix", glm::transpose(glm::inverse(model)));
         renderer.applyMvp(programId, "model", "view", "projection");
         renderer.setUniform3f(programId, "viewPos", renderer.getCameraPos());
-        renderer.draw(vertexCounts.at(i));
+        renderer.draw(vertexCounts.at(chunkCoords));
         renderer.unprepareForDraw(programId, textureIds);
     }
     
-
     renderer.calculateFps();
     renderer.updateGLFW();
 }

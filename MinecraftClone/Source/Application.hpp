@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <random>
 #include <tuple>
 #include <unordered_map>
@@ -27,8 +28,9 @@ private:
 	
 
 	uint32_t programId;
-	std::vector<uint32_t> vertexBufferIds;
-	std::vector<uint32_t> vertexArrayIds;
+	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexBufferIds;
+	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexArrayIds;
+	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexCounts;
 	std::vector<uint32_t> textureIds;
 	uint32_t vertexFloatCount = 8;
 
@@ -36,9 +38,8 @@ private:
 	uint32_t chunkLength = 16;
 	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts = std::make_tuple(16, 4, 16);
 	uint32_t totalChunkCount = std::get<0>(chunkCounts) * std::get<1>(chunkCounts) * std::get<2>(chunkCounts);
-	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<BlockType>> renderedBlockData;
-	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<float>> renderedVertexData;
-	std::vector<uint32_t> vertexCounts;
+	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<float>> meshes;
+	std::mutex meshesMutex;
 	uint32_t renderedChunkCount;
 
 	ThreadPool pool;

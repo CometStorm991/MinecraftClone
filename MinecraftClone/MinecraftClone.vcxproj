@@ -155,6 +155,7 @@
     <ClCompile Include="Source\BlockTextureCoords.cpp" />
     <ClCompile Include="Source\Chunk.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
+    <ClCompile Include="Source\LockedElement.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\PerformanceTimer.cpp" />
     <ClCompile Include="Source\Program.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Source\BlockTextureCoords.hpp" />
     <ClInclude Include="Source\Chunk.hpp" />
     <ClInclude Include="Source\Cube.hpp" />
+    <ClInclude Include="Source\LockedElement.hpp" />
     <ClInclude Include="Source\PerformanceTimer.hpp" />
     <ClInclude Include="Source\Program.hpp" />
     <ClInclude Include="Source\Renderer.hpp" />
