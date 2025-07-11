@@ -138,7 +138,7 @@ bool Chunk::getTerrainExists(const std::tuple<int32_t, int32_t, int32_t>& worldC
 	maxY = std::min(maxY, maxGenerationY);
 	maxY = std::max(maxY, minGenerationY);
 
-	return worldY < maxY;
+	return worldY <= maxY;
 }
 
 BlockType Chunk::getTerrain(const std::tuple<int32_t, int32_t, int32_t>& worldCoords)
@@ -308,7 +308,7 @@ bool Chunk::getBlockExists(const std::vector<BlockType>& chunkData, const std::t
 	int32_t blockGenY = blockY + 1;
 	int32_t blockGenZ = blockZ + 1;
 
-	return chunkData.at(blockGenZ * intPow(chunkLength, 2) + blockGenY * intPow(chunkLength, 1) + blockGenX * intPow(chunkLength, 0)) != BlockType::Air;
+	return chunkData.at(blockGenZ * intPow(chunkGenLength, 2) + blockGenY * intPow(chunkGenLength, 1) + blockGenX * intPow(chunkGenLength, 0)) != BlockType::Air;
 }
 
 int Chunk::intPow(int base, int exp)
@@ -346,8 +346,6 @@ void Chunk::generateMesh(std::vector<float>& mesh, const std::tuple<int32_t, int
 		}
 
 		std::tuple<uint32_t, uint32_t, uint32_t> blockCoords = std::make_tuple(blockX, blockY, blockZ);
-
-		
 
 		std::vector<float> meshPart;
 		getFreeVertices(meshPart, chunkData, chunkCoords, blockCoords, blockType);
