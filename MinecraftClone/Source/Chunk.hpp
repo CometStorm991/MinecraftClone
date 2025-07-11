@@ -18,12 +18,14 @@
 class Chunk
 {
 private:
-	// std::map<std::tuple<int32_t, int32_t, int32_t>, LockedElement<std::vector<BlockType>>> blocks;
-	// std::mutex blocksMutex;
-	unsigned int chunkLength;
+	std::vector<BlockType>& chunkData;
+	uint32_t chunkLength;
 	uint32_t chunkGenLength;
 	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts;
-	unsigned int vertexFloatCount;
+
+	std::vector<float>& mesh;
+	uint32_t vertexFloatCount;
+
 	int32_t minGenerationY = 0;
 	int32_t maxGenerationY = 63;
 
@@ -32,15 +34,14 @@ private:
 	uint32_t imageWidth;
 	uint32_t imageHeight;
 
-	void placeBlockInChunk(std::vector<BlockType>& chunkData, std::tuple<int32_t, int32_t, int32_t> blockCoords, BlockType blockType);
+	void placeBlockInChunk(const std::tuple<int32_t, int32_t, int32_t>& blockCoords, BlockType blockType);
 
 	bool getTerrainExists(const std::tuple<int32_t, int32_t, int32_t>& worldCoords);
 	BlockType getTerrain(const std::tuple<int32_t, int32_t, int32_t>& worldCoords);
 
-	void getFreeVertices(std::vector<float>& meshPart, const std::vector<BlockType>& chunkData, const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, const std::tuple<int32_t, int32_t, int32_t>& block, BlockType blockType);
-
-	bool getFreeFace(const std::vector<BlockType>& chunkData, const std::tuple<int32_t, int32_t, int32_t>& blockCoords, CubeFace face);
-	bool getBlockExists(const std::vector<BlockType>& chunkData, const std::tuple<int32_t, int32_t, int32_t>& worldCoords);
+	void getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, const std::tuple<int32_t, int32_t, int32_t>& block, BlockType blockType);
+	bool getFreeFace(const std::tuple<int32_t, int32_t, int32_t>& blockCoords, CubeFace face);
+	bool getBlockExists(const std::tuple<int32_t, int32_t, int32_t>& worldCoords);
 
 	void chunkToWorldCoords(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, const std::tuple<int32_t, int32_t, int32_t>& blockCoords, std::tuple<int32_t, int32_t, int32_t>& worldCoords);
 	int32_t chunkToWorldCoord(int32_t chunkCoord, uint32_t blockCoord);
@@ -49,15 +50,9 @@ private:
 
 	int intPow(int base, int exp);
 public:
-	Chunk(unsigned int chunkLength, const std::tuple<uint32_t, uint32_t, uint32_t>& chunkCounts, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
+	Chunk(std::vector<BlockType>& chunkData, std::vector<float>& mesh, uint32_t chunkLength, uint32_t vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
 
-	/*
-	std::vector<BlockType>& lockChunk(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
-	void unlockChunk(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
-	*/
-	// void generateBlocksOld(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, std::vector<BlockType>& chunkData);
-	void generateBlocks(std::vector<BlockType>& chunkData, const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
-	// int32_t getMaxColumnWorldY(int32_t worldX, int32_t worldZ);
+	void generateBlocks(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
 
-	void generateMesh(std::vector<float>& mesh, const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, const std::vector<BlockType>& chunkData);
+	void generateMesh(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
 };

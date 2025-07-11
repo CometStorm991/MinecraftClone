@@ -26,7 +26,6 @@ class Application
 private:
 	Renderer renderer;
 	
-
 	uint32_t programId;
 	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexBufferIds;
 	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexArrayIds;
@@ -34,7 +33,6 @@ private:
 	std::vector<uint32_t> textureIds;
 	uint32_t vertexFloatCount = 8;
 
-	Chunk chunk;
 	uint32_t chunkLength = 16;
 	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts = std::make_tuple(8, 4, 8);
 	uint32_t totalChunkCount = std::get<0>(chunkCounts) * std::get<1>(chunkCounts) * std::get<2>(chunkCounts);

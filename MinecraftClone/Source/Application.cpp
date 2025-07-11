@@ -1,7 +1,7 @@
 #include "Application.hpp"
 
 Application::Application()
-    : chunk(Chunk(0, std::make_tuple(0, 0, 0), 0, 0, 0)), pool(ThreadPool(6))
+    : pool(ThreadPool(6))
 {
 }
 
@@ -40,7 +40,7 @@ void Application::prepare()
     attribs.push_back(normAttrib);
     attribs.push_back(texAttrib);
 
-    chunk = Chunk(chunkLength, chunkCounts, vertexFloatCount, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+    
 
     PerformanceTimer meshGenerationTimer = PerformanceTimer("Mesh Generation Timer");
 
@@ -54,16 +54,20 @@ void Application::prepare()
         int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
         std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
 
-        pool.enqueue([this, chunkCoords, &attribs]() {
+        pool.enqueue([this, chunkCoords, &attribs, &diffuseTextureAtlas]() {
+            // Allocate space for block and mesh data
             std::vector<BlockType> chunkData;
             chunkData.resize(intPow(chunkLength + 2, 3));
-            chunk.generateBlocks(chunkData, chunkCoords);
-            
+
             std::unique_lock<std::mutex> meshesMutexLock(meshesMutex);
             meshes.insert({ chunkCoords, {} });
             std::vector<float>& vertexData = meshes.at(chunkCoords);
             meshesMutexLock.unlock();
-            chunk.generateMesh(vertexData, chunkCoords, chunkData);
+
+            // Generate block and mesh data
+            Chunk chunk = Chunk(chunkData, vertexData, chunkLength, vertexFloatCount, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+            chunk.generateBlocks(chunkCoords);
+            chunk.generateMesh(chunkCoords);
         });
     }
 
