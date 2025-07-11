@@ -22,6 +22,7 @@ private:
 	uint32_t chunkLength;
 	uint32_t chunkGenLength;
 	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts;
+	uint32_t solidBlockCount = 0;
 
 	std::vector<float>& mesh;
 	uint32_t vertexFloatCount;
@@ -55,4 +56,6 @@ public:
 	void generateBlocks(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
 
 	void generateMesh(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
+
+	uint32_t getSolidBlockCount();
 };

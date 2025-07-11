@@ -67,6 +67,13 @@ void Application::prepare()
             // Generate block and mesh data
             Chunk chunk = Chunk(chunkData, vertexData, chunkLength, vertexFloatCount, diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
             chunk.generateBlocks(chunkCoords);
+            if (chunk.getSolidBlockCount() == 0)
+            {
+                meshesMutexLock.lock();
+                meshes.erase(chunkCoords);
+                meshesMutexLock.unlock();
+                return;
+            }
             chunk.generateMesh(chunkCoords);
         });
     }
@@ -75,17 +82,11 @@ void Application::prepare()
 
     meshGenerationTimer.stop();
 
-    for (uint32_t i = 0; i < totalChunkCount; i++)
-    {
-        uint32_t chunkCountX = std::get<0>(chunkCounts);
-        uint32_t chunkCountY = std::get<1>(chunkCounts);
-        uint32_t chunkCountZ = std::get<2>(chunkCounts);
-        int32_t chunkX = (i % chunkCountX) / 1;
-        int32_t chunkY = (i % (chunkCountX * chunkCountY)) / chunkCountX;
-        int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
-        std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
+    std::cout << "Mesh count: " << meshes.size() << std::endl;
 
-        std::vector<float>& vertexData = meshes.at(chunkCoords);
+    for (auto& [chunkCoords, mesh] : meshes)
+    {
+        std::vector<float>& vertexData = mesh;
 
         uint32_t vertexCount = vertexData.size() / vertexFloatCount;
         vertexCounts.insert({ chunkCoords, vertexCount });

@@ -17,6 +17,11 @@ void Chunk::placeBlockInChunk(const std::tuple<int32_t, int32_t, int32_t>& block
 	int32_t blockGenZ = blockZ + 1;
 
 	chunkData.at(blockGenZ * intPow(chunkGenLength, 2) + blockGenY * intPow(chunkGenLength, 1) + blockGenX * intPow(chunkGenLength, 0)) = blockType;
+
+	if (blockType != BlockType::Air)
+	{
+		solidBlockCount++;
+	}
 }
 
 void Chunk::generateBlocks(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords)
@@ -270,4 +275,9 @@ void Chunk::generateMesh(const std::tuple<int32_t, int32_t, int32_t>& chunkCoord
 		
 		mesh.insert(mesh.end(), meshPart.begin(), meshPart.end());
 	}
+}
+
+uint32_t Chunk::getSolidBlockCount()
+{
+	return solidBlockCount;
 }
