@@ -1,20 +1,25 @@
 #include "Chunk.hpp"
 
 Chunk::Chunk(unsigned int chunkLength, const std::tuple<uint32_t, uint32_t, uint32_t>& chunkCounts, unsigned int vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight)
-	: chunkLength(chunkLength), chunkCounts(chunkCounts), vertexFloatCount(vertexFloatCount), imageWidth(imageWidth), imageHeight(imageHeight),
+	: chunkLength(chunkLength), chunkGenLength(chunkLength + 2), chunkCounts(chunkCounts), vertexFloatCount(vertexFloatCount), imageWidth(imageWidth), imageHeight(imageHeight),
 	texturer(Texturer(imageWidth, imageHeight))
 {
 }
 
-void Chunk::placeBlockInChunk(std::vector<BlockType>& chunkData, std::tuple<uint32_t, uint32_t, uint32_t> blockCoords, BlockType blockType)
+void Chunk::placeBlockInChunk(std::vector<BlockType>& chunkData, std::tuple<int32_t, int32_t, int32_t> blockCoords, BlockType blockType)
 {
-	uint32_t blockX = std::get<0>(blockCoords);
-	uint32_t blockY = std::get<1>(blockCoords);
-	uint32_t blockZ = std::get<2>(blockCoords);
+	int32_t blockX = std::get<0>(blockCoords);
+	int32_t blockY = std::get<1>(blockCoords);
+	int32_t blockZ = std::get<2>(blockCoords);
 
-	chunkData.at(blockZ * intPow(chunkLength, 2) + blockY * intPow(chunkLength, 1) + blockX * intPow(chunkLength, 0)) = blockType;
+	int32_t blockGenX = blockX + 1;
+	int32_t blockGenY = blockY + 1;
+	int32_t blockGenZ = blockZ + 1;
+
+	chunkData.at(blockGenZ * intPow(chunkGenLength, 2) + blockGenY * intPow(chunkGenLength, 1) + blockGenX * intPow(chunkGenLength, 0)) = blockType;
 }
 
+/*
 std::vector<BlockType>& Chunk::lockChunk(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords)
 {
 	if (blocks.find(chunkCoords) == blocks.end()) // not found
@@ -35,9 +40,13 @@ void Chunk::unlockChunk(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords
 	blocks.at(chunkCoords).mutex.unlock();
 	blocksMutexLock.unlock();
 }
+*/
 
-void Chunk::generateBlocks(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, std::vector<BlockType>& chunkData)
+/*
+void Chunk::generateBlocksOld(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, std::vector<BlockType>& chunkData)
 {
+	chunkData.clear();
+
 	int32_t chunkX = std::get<0>(chunkCoords);
 	int32_t chunkY = std::get<1>(chunkCoords);
 	int32_t chunkZ = std::get<2>(chunkCoords);
@@ -81,7 +90,31 @@ void Chunk::generateBlocks(const std::tuple<int32_t, int32_t, int32_t>& chunkCoo
 		}
 	}
 }
+*/
 
+void Chunk::generateBlocks(std::vector<BlockType>& chunkData, const std::tuple<int32_t, int32_t, int32_t>& chunkCoords)
+{
+	int32_t chunkX = std::get<0>(chunkCoords);
+	int32_t chunkY = std::get<1>(chunkCoords);
+	int32_t chunkZ = std::get<2>(chunkCoords);
+
+	for (uint32_t i = 0; i < intPow(chunkGenLength, 3); i++)
+	{
+		int32_t blockX = (i % intPow(chunkGenLength, 1)) / intPow(chunkGenLength, 0) - 1;
+		int32_t blockY = (i % intPow(chunkGenLength, 2)) / intPow(chunkGenLength, 1) - 1;
+		int32_t blockZ = (i % intPow(chunkGenLength, 3)) / intPow(chunkGenLength, 2) - 1;
+		std::tuple<int32_t, int32_t, int32_t> blockCoords = std::make_tuple(blockX, blockY, blockZ);
+
+		std::tuple<int32_t, int32_t, int32_t> worldCoords;
+		chunkToWorldCoords(chunkCoords, blockCoords, worldCoords);
+
+		BlockType block = getTerrain(worldCoords);
+
+		placeBlockInChunk(chunkData, blockCoords, block);
+	}
+}
+
+/*
 int32_t Chunk::getMaxColumnWorldY(int32_t worldX, int32_t worldZ)
 {
 	int32_t maxY = 8.0f * (std::sin(worldX / 8.0f) + std::sin(worldZ / 8.0f) + 2.0f);
@@ -89,17 +122,53 @@ int32_t Chunk::getMaxColumnWorldY(int32_t worldX, int32_t worldZ)
 	maxY = std::max(maxY, minGenerationY);
 	return maxY;
 }
-
-void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32_t, int32_t, int32_t>& worldCoords, BlockType blockType)
+*/
+bool Chunk::getTerrainExists(const std::tuple<int32_t, int32_t, int32_t>& worldCoords)
 {
-	meshPart.clear();
-
 	int32_t worldX = std::get<0>(worldCoords);
 	int32_t worldY = std::get<1>(worldCoords);
 	int32_t worldZ = std::get<2>(worldCoords);
 
+	if (worldY < minGenerationY || worldY > maxGenerationY)
+	{
+		return false;
+	}
+
+	int32_t maxY = 8.0f * (std::sin(worldX / 8.0f) + std::sin(worldZ / 8.0f) + 2.0f);
+	maxY = std::min(maxY, maxGenerationY);
+	maxY = std::max(maxY, minGenerationY);
+
+	return worldY < maxY;
+}
+
+BlockType Chunk::getTerrain(const std::tuple<int32_t, int32_t, int32_t>& worldCoords)
+{
+	if (!getTerrainExists(worldCoords))
+	{
+		return BlockType::Air;
+	}
+
+	int32_t worldY = std::get<1>(worldCoords);
+	if (worldY < 8)
+	{
+		return BlockType::Sand;
+	}
+	else
+	{
+		return BlockType::Grass;
+	}
+}
+
+void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::vector<BlockType>& chunkData, const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, const std::tuple<int32_t, int32_t, int32_t>& blockCoords, BlockType blockType)
+{
+	meshPart.clear();
+
+	int32_t blockX = std::get<0>(blockCoords);
+	int32_t blockY = std::get<1>(blockCoords);
+	int32_t blockZ = std::get<2>(blockCoords);
+
 	// Get left
-	if (getFreeFace(worldCoords, CubeFace::Left))
+	if (getFreeFace(chunkData, blockCoords, CubeFace::Left))
 	{
 		std::vector<float> left;
 		texturer.generateFace(left, CubeFace::Left, blockType);
@@ -107,7 +176,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32
 	}
 
 	// Get right
-	if (getFreeFace(worldCoords, CubeFace::Right))
+	if (getFreeFace(chunkData, blockCoords, CubeFace::Right))
 	{
 		std::vector<float> right;
 		texturer.generateFace(right, CubeFace::Right, blockType);
@@ -115,7 +184,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32
 	}
 
 	// Get bottom
-	if (getFreeFace(worldCoords, CubeFace::Bottom))
+	if (getFreeFace(chunkData, blockCoords, CubeFace::Bottom))
 	{
 		std::vector<float> bottom;
 		texturer.generateFace(bottom, CubeFace::Bottom, blockType);
@@ -123,7 +192,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32
 	}
 
 	// Get top
-	if (getFreeFace(worldCoords, CubeFace::Top))
+	if (getFreeFace(chunkData, blockCoords, CubeFace::Top))
 	{
 		std::vector<float> top;
 		texturer.generateFace(top, CubeFace::Top, blockType);
@@ -131,7 +200,7 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32
 	}
 
 	// Get back
-	if (getFreeFace(worldCoords, CubeFace::Back))
+	if (getFreeFace(chunkData, blockCoords, CubeFace::Back))
 	{
 		std::vector<float> back;
 		texturer.generateFace(back, CubeFace::Back, blockType);
@@ -139,12 +208,18 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32
 	}
 
 	// Get front
-	if (getFreeFace(worldCoords, CubeFace::Front))
+	if (getFreeFace(chunkData, blockCoords, CubeFace::Front))
 	{
 		std::vector<float> front;
 		texturer.generateFace(front, CubeFace::Front, blockType);
 		meshPart.insert(meshPart.end(), front.begin(), front.end());
 	}
+
+	std::tuple<int32_t, int32_t, int32_t> worldCoords;
+	chunkToWorldCoords(chunkCoords, blockCoords, worldCoords);
+	int32_t worldX = std::get<0>(worldCoords);
+	int32_t worldY = std::get<1>(worldCoords);
+	int32_t worldZ = std::get<2>(worldCoords);
 
 	// Offset cube model by location within chunk
 	for (unsigned int i = 0; i < meshPart.size() / vertexFloatCount; i++)
@@ -155,40 +230,40 @@ void Chunk::getFreeVertices(std::vector<float>& meshPart, const std::tuple<int32
 	}
 }
 
-bool Chunk::getFreeFace(const std::tuple<int32_t, int32_t, int32_t>& worldCoords, CubeFace face)
+bool Chunk::getFreeFace(const std::vector<BlockType>& chunkData, const std::tuple<int32_t, int32_t, int32_t>& blockCoords, CubeFace face)
 {
-	int32_t worldX = std::get<0>(worldCoords);
-	int32_t worldY = std::get<1>(worldCoords);
-	int32_t worldZ = std::get<2>(worldCoords);
+	int32_t blockX = std::get<0>(blockCoords);
+	int32_t blockY = std::get<1>(blockCoords);
+	int32_t blockZ = std::get<2>(blockCoords);
 
 	switch (face)
 	{
 	case CubeFace::Left:
-		return !getBlockExists(std::make_tuple(worldX - 1, worldY, worldZ));
+		return !getBlockExists(chunkData, std::make_tuple(blockX - 1, blockY, blockZ));
 	case CubeFace::Right:
-		return !getBlockExists(std::make_tuple(worldX + 1, worldY, worldZ));
+		return !getBlockExists(chunkData, std::make_tuple(blockX + 1, blockY, blockZ));
 	case CubeFace::Bottom:
-		return !getBlockExists(std::make_tuple(worldX, worldY - 1, worldZ));
+		return !getBlockExists(chunkData, std::make_tuple(blockX, blockY - 1, blockZ));
 	case CubeFace::Top:
-		return !getBlockExists(std::make_tuple(worldX, worldY + 1, worldZ));
+		return !getBlockExists(chunkData, std::make_tuple(blockX, blockY + 1, blockZ));
 	case CubeFace::Back:
-		return !getBlockExists(std::make_tuple(worldX, worldY, worldZ - 1));
+		return !getBlockExists(chunkData, std::make_tuple(blockX, blockY, blockZ - 1));
 	case CubeFace::Front:
-		return !getBlockExists(std::make_tuple(worldX, worldY, worldZ + 1));
+		return !getBlockExists(chunkData, std::make_tuple(blockX, blockY, blockZ + 1));
 	}
 
 	return false;
 }
 
-void Chunk::chunkToWorldCoords(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, const std::tuple<uint32_t, uint32_t, uint32_t>& blockCoords, std::tuple<int32_t, int32_t, int32_t>& worldCoords)
+void Chunk::chunkToWorldCoords(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, const std::tuple<int32_t, int32_t, int32_t>& blockCoords, std::tuple<int32_t, int32_t, int32_t>& worldCoords)
 {
 	int32_t chunkX = std::get<0>(chunkCoords);
 	int32_t chunkY = std::get<1>(chunkCoords);
 	int32_t chunkZ = std::get<2>(chunkCoords);
 
-	uint32_t blockX = std::get<0>(blockCoords);
-	uint32_t blockY = std::get<1>(blockCoords);
-	uint32_t blockZ = std::get<2>(blockCoords);
+	int32_t blockX = std::get<0>(blockCoords);
+	int32_t blockY = std::get<1>(blockCoords);
+	int32_t blockZ = std::get<2>(blockCoords);
 
 	std::get<0>(worldCoords) = chunkX * chunkLength + blockX;
 	std::get<1>(worldCoords) = chunkY * chunkLength + blockY;
@@ -223,26 +298,17 @@ std::tuple<int32_t, uint32_t> Chunk::worldToChunkCoord(int32_t worldCoord)
 	return std::make_tuple(chunkCoord, blockCoord);
 }
 
-bool Chunk::getBlockExists(const std::tuple<int32_t, int32_t, int32_t>& worldCoords)
+bool Chunk::getBlockExists(const std::vector<BlockType>& chunkData, const std::tuple<int32_t, int32_t, int32_t>& blockCoords)
 {
-	std::tuple<int32_t, int32_t, int32_t> chunkCoords;
-	std::tuple<uint32_t, uint32_t, uint32_t> blockCoords;
-	worldToChunkCoords(worldCoords, chunkCoords, blockCoords);
+	int32_t blockX = std::get<0>(blockCoords);
+	int32_t blockY = std::get<1>(blockCoords);
+	int32_t blockZ = std::get<2>(blockCoords);
 
-	int32_t chunkX = std::get<0>(chunkCoords);
-	int32_t chunkY = std::get<1>(chunkCoords);
-	int32_t chunkZ = std::get<2>(chunkCoords);
+	int32_t blockGenX = blockX + 1;
+	int32_t blockGenY = blockY + 1;
+	int32_t blockGenZ = blockZ + 1;
 
-	uint32_t blockX = std::get<0>(blockCoords);
-	uint32_t blockY = std::get<1>(blockCoords);
-	uint32_t blockZ = std::get<2>(blockCoords);
-
-	if (blocks.count(chunkCoords) == 0)
-	{
-		return false;
-	}
-
-	return blocks.at(chunkCoords).at(blockZ * intPow(chunkLength, 2) + blockY * intPow(chunkLength, 1) + blockX * intPow(chunkLength, 0)) != BlockType::Air;
+	return chunkData.at(blockGenZ * intPow(chunkLength, 2) + blockGenY * intPow(chunkLength, 1) + blockGenX * intPow(chunkLength, 0)) != BlockType::Air;
 }
 
 int Chunk::intPow(int base, int exp)
@@ -250,28 +316,41 @@ int Chunk::intPow(int base, int exp)
 	return static_cast<int>(std::powf(base, exp));
 }
 
-void Chunk::generateMesh(std::vector<float>& mesh, std::tuple<int32_t, int32_t, int32_t> chunkCoords)
+void Chunk::generateMesh(std::vector<float>& mesh, const std::tuple<int32_t, int32_t, int32_t>& chunkCoords, const std::vector<BlockType>& chunkData)
 {
 	mesh.clear();
-	for (unsigned int i = 0; i < blocks.at(chunkCoords).size(); i++)
+	for (unsigned int i = 0; i < chunkData.size(); i++)
 	{
-		BlockType blockType = blocks.at(chunkCoords).at(i);
+		BlockType blockType = chunkData.at(i);
 
 		if (blockType == BlockType::Air)
 		{
 			continue;
 		}
 
-		uint32_t blockX = (i % intPow(chunkLength, 1)) / intPow(chunkLength, 0);
-		uint32_t blockY = (i % intPow(chunkLength, 2)) / intPow(chunkLength, 1);
-		uint32_t blockZ = (i % intPow(chunkLength, 3)) / intPow(chunkLength, 2);
+		int32_t blockX = (i % intPow(chunkGenLength, 1)) / intPow(chunkGenLength, 0) - 1;
+		int32_t blockY = (i % intPow(chunkGenLength, 2)) / intPow(chunkGenLength, 1) - 1;
+		int32_t blockZ = (i % intPow(chunkGenLength, 3)) / intPow(chunkGenLength, 2) - 1;
+
+		if (blockX < 0 || blockX > chunkLength - 1)
+		{
+			continue;
+		}
+		if (blockY < 0 || blockY > chunkLength - 1)
+		{
+			continue;
+		}
+		if (blockZ < 0 || blockZ > chunkLength - 1)
+		{
+			continue;
+		}
+
 		std::tuple<uint32_t, uint32_t, uint32_t> blockCoords = std::make_tuple(blockX, blockY, blockZ);
 
-		std::tuple<int32_t, int32_t, int32_t> worldCoords;
-		chunkToWorldCoords(chunkCoords, blockCoords, worldCoords);
+		
 
 		std::vector<float> meshPart;
-		getFreeVertices(meshPart, worldCoords, blockType);
+		getFreeVertices(meshPart, chunkData, chunkCoords, blockCoords, blockType);
 		
 		mesh.insert(mesh.end(), meshPart.begin(), meshPart.end());
 	}

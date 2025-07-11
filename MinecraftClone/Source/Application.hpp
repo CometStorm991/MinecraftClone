@@ -36,11 +36,10 @@ private:
 
 	Chunk chunk;
 	uint32_t chunkLength = 16;
-	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts = std::make_tuple(16, 4, 16);
+	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts = std::make_tuple(8, 4, 8);
 	uint32_t totalChunkCount = std::get<0>(chunkCounts) * std::get<1>(chunkCounts) * std::get<2>(chunkCounts);
 	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<float>> meshes;
 	std::mutex meshesMutex;
-	uint32_t renderedChunkCount;
 
 	ThreadPool pool;
 
