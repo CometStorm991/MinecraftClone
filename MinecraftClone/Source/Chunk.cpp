@@ -1,8 +1,7 @@
 #include "Chunk.hpp"
 
-Chunk::Chunk(std::vector<BlockType>& chunkData, std::vector<float>& mesh, uint32_t chunkLength, uint32_t vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight)
-	: chunkData(chunkData), mesh(mesh), chunkLength(chunkLength), chunkGenLength(chunkLength + 2), vertexFloatCount(vertexFloatCount), imageWidth(imageWidth), imageHeight(imageHeight),
-	texturer(Texturer(imageWidth, imageHeight))
+Chunk::Chunk(std::vector<BlockType>& chunkData, std::vector<float>& mesh, uint32_t chunkLength, uint32_t vertexFloatCount, const Texturer& texturer)
+	: chunkData(chunkData), mesh(mesh), chunkLength(chunkLength), chunkGenLength(chunkLength + 2), vertexFloatCount(vertexFloatCount), texturer(texturer)
 {
 }
 
@@ -236,7 +235,7 @@ bool Chunk::getBlockExists(const std::tuple<int32_t, int32_t, int32_t>& blockCoo
 
 int Chunk::intPow(int base, int exp)
 {
-	return static_cast<int>(std::powf(base, exp));
+	return static_cast<int>(std::pow(base, exp));
 }
 
 void Chunk::generateMesh(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords)

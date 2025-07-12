@@ -51,7 +51,7 @@ private:
 
 	int intPow(int base, int exp);
 public:
-	Chunk(std::vector<BlockType>& chunkData, std::vector<float>& mesh, uint32_t chunkLength, uint32_t vertexFloatCount, uint32_t imageWidth, uint32_t imageHeight);
+	Chunk(std::vector<BlockType>& chunkData, std::vector<float>& mesh, uint32_t chunkLength, uint32_t vertexFloatCount, const Texturer& texturer);
 
 	void generateBlocks(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
 

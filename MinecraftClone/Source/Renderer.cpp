@@ -49,8 +49,8 @@ GLFWwindow* Renderer::initWindow()
 
     glfwSetWindowUserPointer(window, this);
 
-    // Disable VSync for high FPS testing
-    glfwSwapInterval(0);
+    // Enable / Disable VSync for high FPS testing
+    glfwSwapInterval(1);
 
     return window;
 }
