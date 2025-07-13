@@ -35,14 +35,20 @@ private:
 	std::vector<AttributeLayout> attribs;
 
 	uint32_t chunkLength = 32;
+	uint32_t chunkGenLength = chunkLength + 2;
+	uint32_t renderDistance = 8;
+	uint32_t renderChunkLength = 2 * renderDistance + 1;
 	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts = std::make_tuple(16, 2, 16);
 	uint32_t totalChunkCount = std::get<0>(chunkCounts) * std::get<1>(chunkCounts) * std::get<2>(chunkCounts);
 	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<float>> meshes;
 	std::mutex meshesMutex;
 	std::map<std::tuple<int32_t, int32_t, int32_t>, bool> completedMeshes;
 	std::mutex completedMeshesMutex;
+	std::map<std::tuple<int32_t, int32_t, int32_t>, bool> desiredMeshes;
 
 	ThreadPool pool;
+
+	glm::vec3 lastCameraPos;
 
 	int intPow(int base, int exp);
 	

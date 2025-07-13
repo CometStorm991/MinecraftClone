@@ -21,7 +21,6 @@ private:
 	std::vector<BlockType>& chunkData;
 	uint32_t chunkLength;
 	uint32_t chunkGenLength;
-	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts;
 	uint32_t solidBlockCount = 0;
 
 	std::vector<float>& mesh;

@@ -58,7 +58,7 @@ void Application::prepare()
         pool.enqueue([this, chunkCoords, diffuseTexturer]() {
             // Allocate space for block and mesh data
             std::vector<BlockType> chunkData;
-            chunkData.resize(intPow(chunkLength + 2, 3));
+            chunkData.resize(intPow(chunkGenLength, 3));
             
             std::unique_lock<std::mutex> meshesMutexLock(meshesMutex);
             meshes.insert({ chunkCoords, {} });
@@ -107,6 +107,34 @@ void Application::run()
     //std::cout << "----------------------------------------------" << std::endl;
 
     // PerformanceTimer runTimer = PerformanceTimer("Run");
+
+    glm::vec3 currentPos = renderer.getCameraPos();
+    if (currentPos != lastCameraPos)
+    {
+        desiredMeshes.clear();
+
+        int32_t currChunkX = std::floor(currentPos.x / chunkLength) * chunkLength;
+        int32_t currChunkY = std::floor(currentPos.y / chunkLength) * chunkLength;
+        int32_t currChunkZ = std::floor(currentPos.z / chunkLength) * chunkLength;
+
+        for (uint32_t i = 0; i < intPow(renderChunkLength, 3); i++)
+        {
+            int32_t deltaChunkX = (i % intPow(renderChunkLength, 1)) / intPow(renderChunkLength, 0) - renderDistance;
+            int32_t deltaChunkY = (i % intPow(renderChunkLength, 2)) / intPow(renderChunkLength, 1) - renderDistance;
+            int32_t deltaChunkZ = (i % intPow(renderChunkLength, 3)) / intPow(renderChunkLength, 2) - renderDistance;
+
+            int32_t desiredChunkX = currChunkX + deltaChunkX;
+            int32_t desiredChunkY = currChunkY + deltaChunkY;
+            int32_t desiredChunkZ = currChunkZ + deltaChunkZ;
+            std::tuple<int32_t, int32_t, int32_t> desiredChunk = std::make_tuple(desiredChunkX, desiredChunkY, desiredChunkZ);
+            
+            desiredMeshes.insert({ desiredChunk, true });
+        }
+
+        lastCameraPos = currentPos;
+    }
+
+    
 
     renderer.prepareForRender();
     renderer.calculateCameraTransform();
