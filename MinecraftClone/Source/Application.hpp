@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include <optional>
 #include <random>
 #include <tuple>
 #include <unordered_map>
@@ -15,6 +16,7 @@
 #include "AttributeLayout.hpp"
 #include "BlockType.hpp"
 #include "Chunk.hpp"
+#include "ChunkManager.hpp"
 #include "Cube.hpp"
 #include "PerformanceTimer.hpp"
 #include "Program.hpp"
@@ -27,9 +29,9 @@ private:
 	Renderer renderer;
 	
 	uint32_t programId;
-	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexBufferIds;
+	/*std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexBufferIds;
 	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexArrayIds;
-	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexCounts;
+	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexCounts;*/
 	std::vector<uint32_t> textureIds;
 	uint32_t vertexFloatCount = 8;
 	std::vector<AttributeLayout> attribs;
@@ -41,15 +43,10 @@ private:
 	uint32_t renderChunkLength = 2 * renderDistance + 1;
 	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts = std::make_tuple(4, 2, 4);
 	uint32_t totalChunkCount = std::get<0>(chunkCounts) * std::get<1>(chunkCounts) * std::get<2>(chunkCounts);
-	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<float>> meshes;
-	std::mutex meshesMutex;
-	std::map<std::tuple<int32_t, int32_t, int32_t>, bool> completedMeshes;
-	std::mutex completedMeshesMutex;
-	std::vector<std::tuple<int32_t, int32_t, int32_t>> desiredMeshes;
-
+	
 	std::mutex ioMutex;
 
-	ThreadPool pool;
+	std::optional<ChunkManager> chunkManager;
 
 	glm::vec3 lastCameraPos;
 

@@ -95,6 +95,9 @@
     <ClCompile Include="Source\LockedElement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ChunkManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.hpp">
@@ -140,6 +143,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\LockedElement.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ChunkManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

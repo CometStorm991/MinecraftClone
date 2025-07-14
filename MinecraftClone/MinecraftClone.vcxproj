@@ -154,6 +154,7 @@
     <ClCompile Include="Source\AttributeLayout.cpp" />
     <ClCompile Include="Source\BlockTextureCoords.cpp" />
     <ClCompile Include="Source\Chunk.cpp" />
+    <ClCompile Include="Source\ChunkManager.cpp" />
     <ClCompile Include="Source\Cube.cpp" />
     <ClCompile Include="Source\LockedElement.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Source\AttributeLayout.hpp" />
     <ClInclude Include="Source\BlockTextureCoords.hpp" />
     <ClInclude Include="Source\Chunk.hpp" />
+    <ClInclude Include="Source\ChunkManager.hpp" />
     <ClInclude Include="Source\Cube.hpp" />
     <ClInclude Include="Source\LockedElement.hpp" />
     <ClInclude Include="Source\PerformanceTimer.hpp" />
