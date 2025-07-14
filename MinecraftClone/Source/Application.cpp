@@ -1,7 +1,7 @@
 #include "Application.hpp"
 
 Application::Application()
-    : attribs(std::vector<AttributeLayout>()), pool(ThreadPool(6))
+    : attribs(std::vector<AttributeLayout>()), pool(ThreadPool(6)), diffuseTexturer(Texturer(0, 0))
 {
 }
 
@@ -27,7 +27,7 @@ void Application::prepare()
 
     Texture diffuseTextureAtlas = Texture("", GL_RGBA);
     renderer.getTexture(diffuseTextureAtlasId, diffuseTextureAtlas);
-    Texturer diffuseTexturer = Texturer(diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
+    diffuseTexturer = Texturer(diffuseTextureAtlas.getWidth(), diffuseTextureAtlas.getHeight());
 
     std::cout << "Image width: " << diffuseTextureAtlas.getWidth() << std::endl;
     std::cout << "Image height: " << diffuseTextureAtlas.getHeight() << std::endl;
@@ -39,50 +39,6 @@ void Application::prepare()
     attribs.push_back(posAttrib);
     attribs.push_back(normAttrib);
     attribs.push_back(texAttrib);
-
-    for (uint32_t i = 0; i < totalChunkCount; i++)
-    {
-        uint32_t chunkCountX = std::get<0>(chunkCounts);
-        uint32_t chunkCountY = std::get<1>(chunkCounts);
-        uint32_t chunkCountZ = std::get<2>(chunkCounts);
-        int32_t chunkX = (i % chunkCountX) / 1;
-        int32_t chunkY = (i % (chunkCountX * chunkCountY)) / chunkCountX;
-        int32_t chunkZ = (i % (chunkCountX * chunkCountY * chunkCountZ)) / (chunkCountX * chunkCountY);
-        std::tuple<int32_t, int32_t, int32_t> chunkCoords = std::tuple<int32_t, int32_t, int32_t>(chunkX, chunkY, chunkZ);
-
-        // Set mesh completion to false
-        std::unique_lock<std::mutex> completedMeshesMutexLock(meshesMutex);
-        completedMeshes.insert({ chunkCoords, false });
-        completedMeshesMutexLock.unlock();
-
-        pool.enqueue([this, chunkCoords, diffuseTexturer]() {
-            // Allocate space for block and mesh data
-            std::vector<BlockType> chunkData;
-            chunkData.resize(intPow(chunkGenLength, 3));
-            
-            std::unique_lock<std::mutex> meshesMutexLock(meshesMutex);
-            meshes.insert({ chunkCoords, {} });
-            std::vector<float>& vertexData = meshes.at(chunkCoords);
-            meshesMutexLock.unlock();
-
-            // Generate block and mesh data
-            Chunk chunk = Chunk(chunkData, vertexData, chunkLength, vertexFloatCount, diffuseTexturer);
-            chunk.generateBlocks(chunkCoords);
-            if (chunk.getSolidBlockCount() == 0)
-            {
-                meshesMutexLock.lock();
-                meshes.erase(chunkCoords);
-                meshesMutexLock.unlock();
-                return;
-            }
-            chunk.generateMesh(chunkCoords);
-
-            // Set mesh completion to true
-            std::unique_lock<std::mutex> completedMeshesMutexLock(meshesMutex);
-            completedMeshes.at(chunkCoords) = true;
-            completedMeshesMutexLock.unlock();
-        });
-    }
 
     renderer.generateProgram(programId, "Shaders/VertexShader.glsl", "Shaders/FragmentShader.glsl");
 
@@ -113,9 +69,9 @@ void Application::run()
     {
         desiredMeshes.clear();
 
-        int32_t currChunkX = std::floor(currentPos.x / chunkLength) * chunkLength;
-        int32_t currChunkY = std::floor(currentPos.y / chunkLength) * chunkLength;
-        int32_t currChunkZ = std::floor(currentPos.z / chunkLength) * chunkLength;
+        int32_t currChunkX = std::floor(currentPos.x / chunkLength);
+        int32_t currChunkY = std::floor(currentPos.y / chunkLength);
+        int32_t currChunkZ = std::floor(currentPos.z / chunkLength);
 
         for (uint32_t i = 0; i < intPow(renderChunkLength, 3); i++)
         {
@@ -127,49 +83,95 @@ void Application::run()
             int32_t desiredChunkY = currChunkY + deltaChunkY;
             int32_t desiredChunkZ = currChunkZ + deltaChunkZ;
             std::tuple<int32_t, int32_t, int32_t> desiredChunk = std::make_tuple(desiredChunkX, desiredChunkY, desiredChunkZ);
-            
-            desiredMeshes.insert({ desiredChunk, true });
+
+            desiredMeshes.push_back(desiredChunk);
         }
 
         lastCameraPos = currentPos;
     }
 
-    
+    // std::cout << "Desired meshes size: " << desiredMeshes.size() << std::endl;
+    for (const std::tuple<int32_t, int32_t, int32_t>& desiredChunk : desiredMeshes)
+    {
+        if (completedMeshesMutex.try_lock())
+        {
+            if (completedMeshes.find(desiredChunk) == completedMeshes.end())
+            {
+                // Set mesh completion to false
+                completedMeshes.insert({ desiredChunk, false });
+
+                pool.enqueue([this, desiredChunk]() {
+                    const std::tuple<int32_t, int32_t, int32_t>& chunkCoords = desiredChunk;
+
+                    // Allocate space for block and mesh data
+                    std::vector<BlockType> chunkData;
+                    chunkData.resize(intPow(chunkGenLength, 3));
+
+                    std::unique_lock<std::mutex> meshesMutexLock(meshesMutex);
+                    meshes.insert({ chunkCoords, {} });
+                    std::vector<float>& vertexData = meshes.at(chunkCoords);
+                    meshesMutexLock.unlock();
+
+                    // Generate block and mesh data
+                    Chunk chunk = Chunk(chunkData, vertexData, chunkLength, vertexFloatCount, diffuseTexturer);
+                    chunk.generateBlocks(chunkCoords);
+                    if (chunk.getSolidBlockCount() == 0)
+                    {
+                        meshesMutexLock.lock();
+                        meshes.erase(chunkCoords);
+                        meshesMutexLock.unlock();
+                        return;
+                    }
+                    chunk.generateMesh(chunkCoords);
+
+                    // Set mesh completion to true
+                    std::unique_lock<std::mutex> completedMeshesMutexLock(completedMeshesMutex);
+                    completedMeshes.at(chunkCoords) = true;
+                    completedMeshesMutexLock.unlock();
+
+                    {
+                        std::lock_guard<std::mutex> ioMutexLock(ioMutex);
+                        std::cout << "Set mesh completion of chunk " << std::get<0>(chunkCoords) << " " << std::get<1>(chunkCoords) << " " << std::get<2>(chunkCoords) << " to true" << std::endl;
+                    }
+                    
+                });
+                completedMeshesMutex.unlock();
+                continue;
+            }
+
+            if (completedMeshes.at(desiredChunk) && vertexArrayIds.find(desiredChunk) == vertexArrayIds.end())
+            {
+                if (meshesMutex.try_lock())
+                {
+                    const std::tuple<int32_t, int32_t, int32_t>& chunkCoords = desiredChunk;
+
+                    const std::vector<float>& vertexData = meshes.at(chunkCoords);
+
+                    uint32_t vertexCount = vertexData.size() / vertexFloatCount;
+                    vertexCounts.insert({ chunkCoords, vertexCount });
+
+                    vertexBufferIds.insert({ chunkCoords, 0 });
+                    uint32_t& vertexBufferId = vertexBufferIds.at(chunkCoords);
+                    renderer.generateVertexBuffer(vertexBufferId, vertexData);
+
+                    vertexArrayIds.insert({ chunkCoords, 0 });
+                    uint32_t& vertexArrayId = vertexArrayIds.at(chunkCoords);
+                    renderer.generateVertexArray(vertexArrayId, vertexBufferId, attribs);
+                    
+
+                    meshesMutex.unlock();
+                }
+            }
+            completedMeshesMutex.unlock();
+        }
+    }
 
     renderer.prepareForRender();
     renderer.calculateCameraTransform();
 
     glm::mat4 model = glm::mat4(1.0f);
 
-    if (meshesMutex.try_lock())
-    {
-        for (auto& [chunkCoords, completed] : completedMeshes)
-        {
-            if (!completed)
-            {
-                continue;
-            }
-
-            if (vertexArrayIds.find(chunkCoords) == vertexArrayIds.end())
-            {
-                std::vector<float>& vertexData = meshes.at(chunkCoords);
-
-                uint32_t vertexCount = vertexData.size() / vertexFloatCount;
-                vertexCounts.insert({ chunkCoords, vertexCount });
-
-                vertexBufferIds.insert({ chunkCoords, 0 });
-                uint32_t& vertexBufferId = vertexBufferIds.at(chunkCoords);
-                renderer.generateVertexBuffer(vertexBufferId, vertexData);
-
-                vertexArrayIds.insert({ chunkCoords, 0 });
-                uint32_t& vertexArrayId = vertexArrayIds.at(chunkCoords);
-                renderer.generateVertexArray(vertexArrayId, vertexBufferId, attribs);
-            }
-        }
-
-        meshesMutex.unlock();
-    }
-
+    // std::cout << "Vertex Arrays Size: " << vertexArrayIds.size() << std::endl;
     for (auto& [chunkCoords, vertexArrayId] : vertexArrayIds)
     {
         renderer.prepareForDraw(programId, textureIds, vertexArrayId);

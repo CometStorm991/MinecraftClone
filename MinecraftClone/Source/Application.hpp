@@ -33,18 +33,21 @@ private:
 	std::vector<uint32_t> textureIds;
 	uint32_t vertexFloatCount = 8;
 	std::vector<AttributeLayout> attribs;
+	Texturer diffuseTexturer;
 
 	uint32_t chunkLength = 32;
 	uint32_t chunkGenLength = chunkLength + 2;
-	uint32_t renderDistance = 8;
+	uint32_t renderDistance = 4;
 	uint32_t renderChunkLength = 2 * renderDistance + 1;
-	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts = std::make_tuple(16, 2, 16);
+	std::tuple<uint32_t, uint32_t, uint32_t> chunkCounts = std::make_tuple(4, 2, 4);
 	uint32_t totalChunkCount = std::get<0>(chunkCounts) * std::get<1>(chunkCounts) * std::get<2>(chunkCounts);
 	std::map<std::tuple<int32_t, int32_t, int32_t>, std::vector<float>> meshes;
 	std::mutex meshesMutex;
 	std::map<std::tuple<int32_t, int32_t, int32_t>, bool> completedMeshes;
 	std::mutex completedMeshesMutex;
-	std::map<std::tuple<int32_t, int32_t, int32_t>, bool> desiredMeshes;
+	std::vector<std::tuple<int32_t, int32_t, int32_t>> desiredMeshes;
+
+	std::mutex ioMutex;
 
 	ThreadPool pool;
 
