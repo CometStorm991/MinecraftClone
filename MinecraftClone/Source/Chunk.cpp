@@ -280,3 +280,8 @@ uint32_t Chunk::getSolidBlockCount()
 {
 	return solidBlockCount;
 }
+
+uint32_t Chunk::getVertexCount()
+{
+	return mesh.size();
+}

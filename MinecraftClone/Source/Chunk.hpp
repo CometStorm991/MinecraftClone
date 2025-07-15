@@ -57,4 +57,5 @@ public:
 	void generateMesh(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
 
 	uint32_t getSolidBlockCount();
+	uint32_t getVertexCount();
 };

@@ -21,9 +21,9 @@ ChunkManager::ChunkManager(
     renderer(renderer),
     attribs(attribs),
 
-    pool(ThreadPool(6))
+    pool(ThreadPool(std::max(std::thread::hardware_concurrency(), 1u)))
 {
-
+    std::cout << "Created ChunkManager with " << std::max(std::thread::hardware_concurrency() - 1u, 1u) << " threads" << std::endl;
 }
 
 void ChunkManager::updateDesiredMeshes(const glm::vec3& currentPos)
@@ -132,6 +132,13 @@ void ChunkManager::generateChunk(const std::tuple<int32_t, int32_t, int32_t>& ch
             return;
         }
         chunk.generateMesh(chunkCoords);
+        if (chunk.getVertexCount() == 0)
+        {
+            meshesMutexLock.lock();
+            meshes.erase(chunkCoords);
+            meshesMutexLock.unlock();
+            return;
+        }
 
         // Set mesh completion to true
         std::unique_lock<std::mutex> completedMeshesMutexLock(completedMeshesMutex);
