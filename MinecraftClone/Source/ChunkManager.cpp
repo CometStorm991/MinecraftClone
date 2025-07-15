@@ -71,6 +71,20 @@ void ChunkManager::manageChunks()
             continue;
         }
     }
+
+    std::vector<std::tuple<int32_t, int32_t, int32_t>> chunksToDelete;
+    for (auto& [chunkCoords, vertexArrayId] : vertexArrayIds)
+    {
+        // Check if a loaded mesh doesn't exist in the "desired" list
+        if (std::find(desiredMeshes.begin(), desiredMeshes.end(), chunkCoords) == desiredMeshes.end())
+        {
+            chunksToDelete.push_back(chunkCoords);
+        }
+    }
+    for (const std::tuple<int32_t, int32_t, int32_t>& chunkCoords : chunksToDelete)
+    {
+        deleteChunkFromGPU(chunkCoords);
+    }
 }
 
 void ChunkManager::stopGeneratingChunks()
@@ -85,12 +99,12 @@ const std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t>& ChunkManager::g
 
 const std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t>& ChunkManager::getVertexArrayIds()
 {
-    return vertexBufferIds;
+    return vertexArrayIds;
 }
 
 const std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t>& ChunkManager::getVertexCounts()
 {
-    return vertexBufferIds;
+    return vertexCounts;
 }
 
 void ChunkManager::generateChunk(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords)
@@ -151,6 +165,19 @@ void ChunkManager::uploadChunkToGPU(const std::tuple<int32_t, int32_t, int32_t>&
     vertexArrayIds.insert({ chunkCoords, 0 });
     uint32_t& vertexArrayId = vertexArrayIds.at(chunkCoords);
     renderer.generateVertexArray(vertexArrayId, vertexBufferId, attribs);
+}
+
+void ChunkManager::deleteChunkFromGPU(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords)
+{
+    uint32_t vertexArrayId = vertexArrayIds.at(chunkCoords);
+    renderer.deleteVertexArray(vertexArrayId);
+
+    uint32_t vertexBufferId = vertexBufferIds.at(chunkCoords);
+    renderer.deleteVertexBuffer(vertexBufferId);
+
+    vertexCounts.erase(chunkCoords);
+    vertexBufferIds.erase(chunkCoords);
+    vertexArrayIds.erase(chunkCoords);
 }
 
 int ChunkManager::intPow(int base, int exp)

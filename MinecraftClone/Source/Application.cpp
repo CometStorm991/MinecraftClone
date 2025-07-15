@@ -90,8 +90,8 @@ void Application::run()
     }
     chunkManager.value().manageChunks();
 
-    const std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t>& vertexArrayIds = chunkManager.value().getVertexArrayIds();
-    const std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t>& vertexCounts = chunkManager.value().getVertexCounts();
+    const auto& vertexArrayIds = chunkManager.value().getVertexArrayIds();
+    const auto& vertexCounts = chunkManager.value().getVertexCounts();
 
     // std::cout << "Vertex array id count: " << vertexArrayIds.size() << std::endl;
     for (auto& [chunkCoords, vertexArrayId] : vertexArrayIds)

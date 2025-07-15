@@ -61,7 +61,7 @@ private:
 
 	void generateChunk(const std::tuple<int32_t, int32_t, int32_t>& desiredChunk);
 	void uploadChunkToGPU(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
-	// void deleteChunkFromGPU();
+	void deleteChunkFromGPU(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
 
 	int intPow(int base, int exp);
 };

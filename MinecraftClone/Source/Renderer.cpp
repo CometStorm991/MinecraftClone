@@ -154,6 +154,16 @@ void Renderer::generateVertexArray(uint32_t& vaoId, uint32_t vertexBuffer, std::
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void Renderer::deleteVertexBuffer(uint32_t vertexBuffer)
+{
+    glDeleteBuffers(1, &vertexBuffer);
+}
+
+void Renderer::deleteVertexArray(uint32_t vao)
+{
+    glDeleteBuffers(1, &vao);
+}
+
 uint32_t Renderer::getGLTypeSize(GLenum type)
 {
     switch (type)

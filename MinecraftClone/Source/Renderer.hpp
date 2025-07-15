@@ -90,6 +90,9 @@ public:
 	void generateTexture(uint32_t& textureId, const std::string& imagePath, GLenum pixelFormat);
 	void generateVertexArray(uint32_t& vao, uint32_t vertexBuffer, std::vector<AttributeLayout>& attribs);
 
+	void deleteVertexBuffer(uint32_t vertexBuffer);
+	void deleteVertexArray(uint32_t vao);
+
 	void prepareForRun();
 	void setCameraPos(const glm::vec3& cameraPos);
 	void calculateCameraTransform();
