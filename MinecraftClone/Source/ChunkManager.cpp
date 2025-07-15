@@ -21,9 +21,24 @@ ChunkManager::ChunkManager(
     renderer(renderer),
     attribs(attribs),
 
-    pool(ThreadPool(std::max(std::thread::hardware_concurrency(), 1u)))
+    pool(ThreadPool(std::max(std::thread::hardware_concurrency() - 3u, 1u)))
 {
-    std::cout << "Created ChunkManager with " << std::max(std::thread::hardware_concurrency() - 1u, 1u) << " threads" << std::endl;
+    std::cout << "Created ChunkManager with " << std::max(std::thread::hardware_concurrency() - 3u, 1u) << " threads" << std::endl;
+}
+
+void ChunkManager::initGPU()
+{
+    for (uint32_t i = 0; i < intPow(renderChunkLength, 3); i++)
+    {
+        uint32_t vertexBufferId;
+        renderer.generateVertexBuffer(vertexBufferId, std::vector<float>());
+
+        uint32_t vertexArrayId;
+        renderer.generateVertexArray(vertexArrayId, vertexBufferId, attribs);
+
+        vertexBufferQueue.push(vertexBufferId);
+        vertexArrayQueue.push(vertexArrayId);
+    }
 }
 
 void ChunkManager::updateDesiredMeshes(const glm::vec3& currentPos)
@@ -36,9 +51,10 @@ void ChunkManager::updateDesiredMeshes(const glm::vec3& currentPos)
 
     for (uint32_t i = 0; i < intPow(renderChunkLength, 3); i++)
     {
-        int32_t deltaChunkX = (i % intPow(renderChunkLength, 1)) / intPow(renderChunkLength, 0) - renderDistance;
-        int32_t deltaChunkY = (i % intPow(renderChunkLength, 2)) / intPow(renderChunkLength, 1) - renderDistance;
-        int32_t deltaChunkZ = (i % intPow(renderChunkLength, 3)) / intPow(renderChunkLength, 2) - renderDistance;
+        std::tuple<int32_t, int32_t, int32_t> deltaChunkCoords = getDeltaChunkFromIndex(i);
+        int32_t deltaChunkX = std::get<0>(deltaChunkCoords);
+        int32_t deltaChunkY = std::get<1>(deltaChunkCoords);
+        int32_t deltaChunkZ = std::get<2>(deltaChunkCoords);
 
         int32_t desiredChunkX = currChunkX + deltaChunkX;
         int32_t desiredChunkY = currChunkY + deltaChunkY;
@@ -109,6 +125,7 @@ const std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t>& ChunkManager::g
 
 void ChunkManager::generateChunk(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords)
 {
+    // WARNING: completedMeshesMutex must be locked before this function is called!
     completedMeshes.insert({ chunkCoords, false });
 
     pool.enqueue([this, chunkCoords]() {
@@ -154,6 +171,11 @@ void ChunkManager::generateChunk(const std::tuple<int32_t, int32_t, int32_t>& ch
 
 void ChunkManager::uploadChunkToGPU(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords)
 {
+    if (vertexBufferQueue.empty())
+    {
+        return;
+    }
+
     std::unique_lock<std::mutex> meshesMutexLock(meshesMutex, std::try_to_lock);
     if (!meshesMutexLock.owns_lock())
     {
@@ -164,14 +186,15 @@ void ChunkManager::uploadChunkToGPU(const std::tuple<int32_t, int32_t, int32_t>&
 
     uint32_t vertexCount = vertexData.size() / vertexFloatCount;
     vertexCounts.insert({ chunkCoords, vertexCount });
+    
+    uint32_t vertexBufferId = vertexBufferQueue.front();
+    vertexBufferQueue.pop();
+    renderer.modifyVertexBuffer(vertexBufferId, vertexData);
+    vertexBufferIds.insert({ chunkCoords, vertexBufferId });
 
-    vertexBufferIds.insert({ chunkCoords, 0 });
-    uint32_t& vertexBufferId = vertexBufferIds.at(chunkCoords);
-    renderer.generateVertexBuffer(vertexBufferId, vertexData);
-
-    vertexArrayIds.insert({ chunkCoords, 0 });
-    uint32_t& vertexArrayId = vertexArrayIds.at(chunkCoords);
-    renderer.generateVertexArray(vertexArrayId, vertexBufferId, attribs);
+    uint32_t vertexArrayId = vertexArrayQueue.front();
+    vertexArrayQueue.pop();
+    vertexArrayIds.insert({ chunkCoords, vertexArrayId });
 }
 
 void ChunkManager::deleteChunkFromGPU(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords)
@@ -185,6 +208,18 @@ void ChunkManager::deleteChunkFromGPU(const std::tuple<int32_t, int32_t, int32_t
     vertexCounts.erase(chunkCoords);
     vertexBufferIds.erase(chunkCoords);
     vertexArrayIds.erase(chunkCoords);
+
+    vertexBufferQueue.push(vertexBufferId);
+    vertexArrayQueue.push(vertexArrayId);
+}
+
+std::tuple<int32_t, int32_t, int32_t> ChunkManager::getDeltaChunkFromIndex(uint32_t i)
+{
+    int32_t deltaChunkX = (i % intPow(renderChunkLength, 1)) / intPow(renderChunkLength, 0) - renderDistance;
+    int32_t deltaChunkY = (i % intPow(renderChunkLength, 2)) / intPow(renderChunkLength, 1) - renderDistance;
+    int32_t deltaChunkZ = (i % intPow(renderChunkLength, 3)) / intPow(renderChunkLength, 2) - renderDistance;
+
+    return std::make_tuple(deltaChunkX, deltaChunkY, deltaChunkZ);
 }
 
 int ChunkManager::intPow(int base, int exp)

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdint>
 #include <map>
+#include <queue>
 #include <tuple>
 
 #include "glm/glm.hpp"
@@ -26,6 +27,7 @@ public:
 		const std::vector<AttributeLayout>& attribs
 	);
 
+	void initGPU();
 	void updateDesiredMeshes(const glm::vec3& currentPos);
 	void manageChunks();
 	void stopGeneratingChunks();
@@ -57,12 +59,17 @@ private:
 	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexArrayIds;
 	std::map<std::tuple<int32_t, int32_t, int32_t>, uint32_t> vertexCounts;
 
+	std::queue<uint32_t> vertexBufferQueue;
+	std::queue<uint32_t> vertexArrayQueue;
+
 	Renderer& renderer;
 	std::vector<AttributeLayout> attribs;
 
 	void generateChunk(const std::tuple<int32_t, int32_t, int32_t>& desiredChunk);
 	void uploadChunkToGPU(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
 	void deleteChunkFromGPU(const std::tuple<int32_t, int32_t, int32_t>& chunkCoords);
+
+	std::tuple<int32_t, int32_t, int32_t> getDeltaChunkFromIndex(uint32_t i);
 
 	int intPow(int base, int exp);
 };

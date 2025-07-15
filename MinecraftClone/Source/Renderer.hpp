@@ -90,6 +90,8 @@ public:
 	void generateTexture(uint32_t& textureId, const std::string& imagePath, GLenum pixelFormat);
 	void generateVertexArray(uint32_t& vao, uint32_t vertexBuffer, std::vector<AttributeLayout>& attribs);
 
+	void modifyVertexBuffer(uint32_t vertexBuffer, const std::vector<float>& vertices);
+
 	void deleteVertexBuffer(uint32_t vertexBuffer);
 	void deleteVertexArray(uint32_t vao);
 

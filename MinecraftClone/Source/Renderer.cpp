@@ -154,6 +154,13 @@ void Renderer::generateVertexArray(uint32_t& vaoId, uint32_t vertexBuffer, std::
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void Renderer::modifyVertexBuffer(uint32_t vertexBuffer, const std::vector<float>& vertices)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Renderer::deleteVertexBuffer(uint32_t vertexBuffer)
 {
     glDeleteBuffers(1, &vertexBuffer);

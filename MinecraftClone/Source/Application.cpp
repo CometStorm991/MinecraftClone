@@ -51,6 +51,7 @@ void Application::prepare()
         renderer,
         attribs
     );
+    chunkManager.value().initGPU();
 
     renderer.generateProgram(programId, "Shaders/VertexShader.glsl", "Shaders/FragmentShader.glsl");
 
