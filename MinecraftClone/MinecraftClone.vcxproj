@@ -162,6 +162,7 @@
     <ClCompile Include="Source\Program.cpp" />
     <ClCompile Include="Source\Renderer.cpp" />
     <ClCompile Include="Source\Shader.cpp" />
+    <ClCompile Include="Source\TerrainGenerator.cpp" />
     <ClCompile Include="Source\Texture.cpp" />
     <ClCompile Include="Source\Texturer.cpp" />
     <ClCompile Include="Source\ThreadPool.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="Source\Program.hpp" />
     <ClInclude Include="Source\Renderer.hpp" />
     <ClInclude Include="Source\Shader.hpp" />
+    <ClInclude Include="Source\TerrainGenerator.hpp" />
     <ClInclude Include="Source\Texture.hpp" />
     <ClInclude Include="Source\Texturer.hpp" />
     <ClInclude Include="Source\BlockType.hpp" />

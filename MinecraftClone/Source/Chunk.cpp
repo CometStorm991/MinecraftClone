@@ -51,14 +51,14 @@ bool Chunk::getTerrainExists(const std::tuple<int32_t, int32_t, int32_t>& worldC
 	int32_t worldY = std::get<1>(worldCoords);
 	int32_t worldZ = std::get<2>(worldCoords);
 
-	if (worldY < minGenerationY || worldY > maxGenerationY)
+	/*if (worldY < minGenerationY || worldY > maxGenerationY)
 	{
 		return false;
-	}
+	}*/
 
 	int32_t maxY = 8.0f * (std::sin(worldX / 8.0f) + std::sin(worldZ / 8.0f) + 2.0f);
-	maxY = std::min(maxY, maxGenerationY);
-	maxY = std::max(maxY, minGenerationY);
+	/*maxY = std::min(maxY, maxGenerationY);
+	maxY = std::max(maxY, minGenerationY);*/
 
 	return worldY <= maxY;
 }

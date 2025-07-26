@@ -13,6 +13,7 @@
 #include "BlockType.hpp"
 #include "Chunk.hpp"
 #include "Renderer.hpp"
+#include "TerrainGenerator.hpp"
 #include "ThreadPool.hpp"
 
 class ChunkManager {

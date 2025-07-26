@@ -140,8 +140,17 @@ void ChunkManager::generateChunk(const std::tuple<int32_t, int32_t, int32_t>& ch
 
         // Generate block and mesh data
         Chunk chunk = Chunk(chunkData, vertexData, chunkLength, vertexFloatCount, diffuseTexturer);
-        chunk.generateBlocks(chunkCoords);
+        TerrainGenerator terrainGenerator = TerrainGenerator(chunkData, chunkLength);
+        /*chunk.generateBlocks(chunkCoords);
         if (chunk.getSolidBlockCount() == 0)
+        {
+            meshesMutexLock.lock();
+            meshes.erase(chunkCoords);
+            meshesMutexLock.unlock();
+            return;
+        }*/
+        terrainGenerator.generateBlocks(chunkCoords);
+        if (terrainGenerator.getSolidBlockCount() == 0)
         {
             meshesMutexLock.lock();
             meshes.erase(chunkCoords);
