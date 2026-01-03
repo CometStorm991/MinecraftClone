@@ -1,5 +1,7 @@
 #include "TerrainGenerator.hpp"
 
+#include <algorithm>
+
 TerrainGenerator::TerrainGenerator(
 	std::vector<BlockType>& chunkData,
 	uint32_t chunkLength
@@ -69,7 +71,14 @@ bool TerrainGenerator::getTerrainExists(const std::tuple<int32_t, int32_t, int32
 
 	// int32_t maxY = 8.0f * (std::sin(worldX / 8.0f) + std::sin(worldZ / 8.0f) + 2.0f);
 	float normalizedPerlin = (perlinNoise(worldX / 80.0f, worldZ / 80.0f) + 1.0f) * 0.5f;
-	int32_t maxY = normalizedPerlin * normalizedPerlin * 128.0f;
+	float normalizedPerlin2 = (perlinNoise(-worldZ / 30.0f, worldX / 30.0f) + 1.0f) * 0.35f;
+	float normalizedPerlin3 = (perlinNoise(-worldX / 10.0f, -worldZ / 10.0f) + 1.0f) * 0.2f;
+	
+	float perlin4 = perlinNoise(worldX / 200.0f + 50000, worldZ / 200.0f);
+	
+	float perlinFactor = std::clamp(1.0f / (1.0f + std::exp(perlin4 * 5.0f)), 0.2f, 1.0f);
+	int32_t maxY = perlinFactor * (normalizedPerlin * normalizedPerlin * 128.0f + normalizedPerlin2 * normalizedPerlin2 * 128.0f + normalizedPerlin3 * normalizedPerlin3 * 128.0f);
+
 	/*maxY = std::min(maxY, maxGenerationY);
 	maxY = std::max(maxY, minGenerationY);*/
 
